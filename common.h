@@ -20,8 +20,6 @@
 #define __ADIS_COMMON_H__
 
 #include <stdint.h>
-#include <string.h>
-#include <stdio.h>
 
 #define ADIS_MAX(op1, op2) ((op1 < op2) ? op2 : op1)
 #define ADIS_MIN(op1, op2) ((op1 < op2) ? op1 : op2)

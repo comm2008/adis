@@ -16,7 +16,11 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
+#include <stdio.h>
+#include <string.h>
+
 #include "branch.h"
+#include "common.h"
 
 void branch_instr(uint32_t op) {
 

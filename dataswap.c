@@ -16,7 +16,10 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
+#include <stdio.h>
+
 #include "dataswap.h"
+#include "common.h"
 
 static void get_destination_string(uint32_t op, char* buffer, int bsize) {
 
