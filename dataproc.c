@@ -143,7 +143,6 @@ static void get_first_operand_string(uint32_t op, char* buffer, int bsize) {
 static void get_second_operand_string(uint32_t op, char* buffer, int bsize) {
 
     int shift;
-    char* sType;
 
     if (!(op & 0x02000000)) {
         
