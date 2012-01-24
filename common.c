@@ -120,8 +120,8 @@ void get_shift_string(uint32_t shift, char* buffer, int bsize) {
                 sType = "ROR";
                 break;
         }
-        snprintf(buffer, ADIS_MIN(bsize, sizeof("XXX Rxx")),
-            "%s R%d", sType, sReg);
+        snprintf(buffer, ADIS_MIN(bsize, sizeof(",XXX Rxx")),
+            ",%s R%d", sType, sReg);
     } else {
         int imm = shift & 0xF0 >> 3;
         if (imm != 0) {
@@ -143,8 +143,8 @@ void get_shift_string(uint32_t shift, char* buffer, int bsize) {
                     sType = "ROR";
                     break;
             }
-            snprintf(buffer, ADIS_MIN(bsize, sizeof("XXX #xx")),
-                "%s #%d", sType, imm);
+            snprintf(buffer, ADIS_MIN(bsize, sizeof(",XXX #xx")),
+                ",%s #%d", sType, imm);
         } else if (bsize > 0) {
             buffer[0] = 0;
         }
