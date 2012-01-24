@@ -41,12 +41,13 @@ static void get_offset_string(uint32_t op, char* buffer, int bsize) {
         int reg = op & 0x0000000F;
         int shift = (op & 0x00000FF0) >> 4;
 
-        snprintf(buffer, ADIS_MIN(bsize, sizeof("Rxx")), "R%d", reg);
+        snprintf(buffer, ADIS_MIN(bsize, sizeof("xRxx")), "%sR%d", 
+            op & 0x00800000 ? "+" : "-", reg);
 
         if (reg < 10) {
-            get_shift_string(shift, buffer + 2, bsize - 2);
-        } else {
             get_shift_string(shift, buffer + 3, bsize - 3);
+        } else {
+            get_shift_string(shift, buffer + 4, bsize - 4);
         }
     } else {
         // immediate value
@@ -55,14 +56,43 @@ static void get_offset_string(uint32_t op, char* buffer, int bsize) {
     }
 }
 
-void sdt_instr(uint32_t op) {
+static void get_addr_string(uint32_t op, char* buffer, int bsize) {
 
-    char cond[4], srcdest[4], base[4], offset[16];
+    char r_base[4], offset[16];
 
-    get_condition_string(op, cond, sizeof(cond));
-    get_srcdest_string(op, srcdest, sizeof(srcdest));
-    get_base_string(op, base, sizeof(base));
+    get_base_string(op, r_base, sizeof(r_base));
     get_offset_string(op, offset, sizeof(offset));
 
-    // TODO
+    // pre-indexed
+    if (op & 0x01000000) {
+        snprintf(buffer, ADIS_MIN(bsize, sizeof(r_base) + sizeof(offset) + 3),
+            "[%s,%s]%s", r_base, offset, op & 0x00200000 ? "!" : "");
+    } else {
+        snprintf(buffer, ADIS_MIN(bsize, sizeof(r_base) + sizeof(offset) + 2),
+            "[%s],%s", r_base, offset);
+    }
+}
+
+void sdt_instr(uint32_t op) {
+
+    char cond[4], r_srcdest[4], addr[32];
+    char *tsize; 
+
+    get_condition_string(op, cond, sizeof(cond));
+    get_srcdest_string(op, r_srcdest, sizeof(r_srcdest));
+    get_addr_string(op, addr, sizeof(addr));
+
+    // byte / word
+    if (op & 0x00400000) {
+        tsize = "B";
+    } else {
+        tsize = "";
+    }
+
+    // load / store
+    if (op & 0x00100000) {
+        printf("LDR%s%s %s,%s", cond, tsize, r_srcdest, addr);
+    } else {
+        printf("STR%s%s %s,%s", cond, tsize, r_srcdest, addr);
+    }
 }
