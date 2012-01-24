@@ -22,39 +22,39 @@
 #include "multi.h"
 #include "common.h"
 
-static void get_destination_string(uint32_t op, char* buffer, int bsize) {
+static void get_destination_string(uint32_t op, char *buffer, size_t bsize) {
     
-    int regnum = (op & 0x000F0000) >> 16;
+    uint32_t regnum = (op & 0x000F0000) >> 16;
     snprintf(buffer, ADIS_MIN(bsize, sizeof("Rxx")), "R%d", regnum);
 }
 
-static void get_first_operand_string(uint32_t op, char* buffer, int bsize) {
+static void get_first_operand_string(uint32_t op, char *buffer, size_t bsize) {
 
-    int regnum = (op & 0x00000F00) >> 8;
+    uint32_t regnum = (op & 0x00000F00) >> 8;
     snprintf(buffer, ADIS_MIN(bsize, sizeof("Rxx")), "R%d", regnum);
 }
 
-static void get_second_operand_string(uint32_t op, char* buffer, int bsize) {
+static void get_second_operand_string(uint32_t op, char *buffer, size_t bsize) {
 
-    int regnum = (op & 0x0000000F);
+    uint32_t regnum = (op & 0x0000000F);
     snprintf(buffer, ADIS_MIN(bsize, sizeof("Rxx")), "R%d", regnum);
 }
 
-static void get_third_operand_string(uint32_t op, char* buffer, int bsize) {
+static void get_third_operand_string(uint32_t op, char *buffer, size_t bsize) {
     
-    int regnum = (op & 0x0000F000) >> 12;
+    uint32_t regnum = (op & 0x0000F000) >> 12;
     snprintf(buffer, ADIS_MIN(bsize, sizeof("Rxx")), "R%d", regnum);
 }
 
 void multi_instr(uint32_t op) {
 
-    char cond[4], rDest[4], rFirst[4], rSecond[4];
+    char cond[4], r_dest[4], r_first[4], r_second[4];
     char *setcond;
 
     get_condition_string(op, cond, sizeof(cond));
-    get_destination_string(op, rDest, sizeof(rDest));
-    get_first_operand_string(op, rFirst, sizeof(rFirst));
-    get_second_operand_string(op, rSecond, sizeof(rSecond));
+    get_destination_string(op, r_dest, sizeof(r_dest));
+    get_first_operand_string(op, r_first, sizeof(r_first));
+    get_second_operand_string(op, r_second, sizeof(r_second));
 
     if (op & 0x00100000) {
         setcond = "S";
@@ -64,13 +64,13 @@ void multi_instr(uint32_t op) {
 
     if (op & 0x00200000) {
         // multiply and accumulate
-        char rThird[4];
+        char r_third[4];
 
-        get_third_operand_string(op, rThird, sizeof(rThird));
-        printf("MLA%s%s %s,%s,%s,%s\n", cond, setcond, rDest, 
-            rFirst, rSecond, rThird);
+        get_third_operand_string(op, r_third, sizeof(r_third));
+        printf("MLA%s%s %s,%s,%s,%s\n", cond, setcond, r_dest, 
+            r_first, r_second, r_third);
     } else {
-        printf("MUL%s%s %s,%s,%s\n", cond, setcond, rDest,
-            rFirst, rSecond);
+        printf("MUL%s%s %s,%s,%s\n", cond, setcond, r_dest,
+            r_first, r_second);
     }
 }

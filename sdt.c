@@ -22,24 +22,24 @@
 #include "sdt.h"
 #include "common.h"
 
-static void get_srcdest_string(uint32_t op, char* buffer, int bsize) {
+static void get_srcdest_string(uint32_t op, char *buffer, size_t bsize) {
 
-    int regnum = (op & 0x0000F000) >> 12;
+    uint32_t regnum = (op & 0x0000F000) >> 12;
     snprintf(buffer, ADIS_MIN(bsize, sizeof("Rxx")), "R%d", regnum);
 }
 
-static void get_base_string(uint32_t op, char* buffer, int bsize) {
+static void get_base_string(uint32_t op, char *buffer, size_t bsize) {
 
-    int regnum = (op & 0x000F0000) >> 16;
+    uint32_t regnum = (op & 0x000F0000) >> 16;
     snprintf(buffer, ADIS_MIN(bsize, sizeof("Rxx")), "R%d", regnum);
 }
 
-static void get_offset_string(uint32_t op, char* buffer, int bsize) {
+static void get_offset_string(uint32_t op, char *buffer, size_t bsize) {
 
     if (op & 0x02000000) {
         // shift + register
-        int reg = op & 0x0000000F;
-        int shift = (op & 0x00000FF0) >> 4;
+        uint32_t reg = op & 0x0000000F;
+        uint32_t shift = (op & 0x00000FF0) >> 4;
 
         snprintf(buffer, ADIS_MIN(bsize, sizeof("xRxx")), "%sR%d", 
             op & 0x00800000 ? "+" : "-", reg);
@@ -56,7 +56,7 @@ static void get_offset_string(uint32_t op, char* buffer, int bsize) {
     }
 }
 
-static void get_addr_string(uint32_t op, char* buffer, int bsize) {
+static void get_addr_string(uint32_t op, char *buffer, size_t bsize) {
 
     char r_base[4], offset[16];
 

@@ -22,10 +22,10 @@
 #include "dataproc.h"
 #include "common.h"
 
-typedef enum _PSR_FLAG {
-    PSR_FLAG_NONE,
-    PSR_FLAG_BITS
-} PSR_FLAG;
+typedef enum _PSRFlag {
+    PSRFlagNone,
+    PSRFlagBits
+} PSRFlag;
 
 static int is_mrs(uint32_t op) {
     return !((op & 0x0FBF0FFF) ^ 0x010F0000);
@@ -53,10 +53,10 @@ static int is_no_result(uint32_t op) {
     return (opcode >= 0x1000) && (opcode <= 0x1011);
 }
 
-static void get_op_string(uint32_t op, char* buffer, int bsize) {
+static void get_op_string(uint32_t op, char *buffer, size_t bsize) {
 
-    char* tmp;
-    int opcode = (op & 0x01E00000) >> 21;
+    char *tmp;
+    uint32_t opcode = (op & 0x01E00000) >> 21;
 
     switch(opcode) {
         case 0x00:
@@ -128,25 +128,25 @@ static void get_op_string(uint32_t op, char* buffer, int bsize) {
     memcpy(buffer, tmp, ADIS_MIN(bsize, sizeof(tmp)));
 }
 
-static void get_destination_string(uint32_t op, char* buffer, int bsize) {
+static void get_destination_string(uint32_t op, char *buffer, size_t bsize) {
     
-    int regnum = (op & 0x0000F000) >> 12;
+    uint32_t regnum = (op & 0x0000F000) >> 12;
     snprintf(buffer, ADIS_MIN(bsize, sizeof("Rxx")), "R%d", regnum);
 }
 
-static void get_first_operand_string(uint32_t op, char* buffer, int bsize) {
+static void get_first_operand_string(uint32_t op, char *buffer, size_t bsize) {
 
-    int regnum = (op & 0x000F0000) >> 16;
+    uint32_t regnum = (op & 0x000F0000) >> 16;
     snprintf(buffer, ADIS_MIN(bsize, sizeof("Rxx")), "R%d", regnum);
 }
 
-static void get_second_operand_string(uint32_t op, char* buffer, int bsize) {
+static void get_second_operand_string(uint32_t op, char *buffer, size_t bsize) {
 
-    int shift;
+    uint32_t shift;
 
     if (!(op & 0x02000000)) {
         
-        int reg = op & 0x0000000F;
+        uint32_t reg = op & 0x0000000F;
         shift = (op & 0x00000FF0) >> 4;
 
         snprintf(buffer, ADIS_MIN(bsize, sizeof("Rxx")), "R%d", reg);
@@ -158,7 +158,7 @@ static void get_second_operand_string(uint32_t op, char* buffer, int bsize) {
         }
     } else {
         // operand is immediate value
-        int imm = op & 0x000000FF;
+        uint32_t imm = op & 0x000000FF;
         shift = (op & 0x00000F00) >> 8;
 
         if (shift) {
@@ -173,20 +173,20 @@ static void get_second_operand_string(uint32_t op, char* buffer, int bsize) {
 
 static void data_proc_instr(uint32_t op) {
 
-    char cond[4], opstr[4], rSecond[16];
+    char cond[4], opstr[4], r_second[16];
     char *setcond;
     
     get_op_string(op, opstr, sizeof(opstr));
     get_condition_string(op, cond, sizeof(cond));
-    get_second_operand_string(op, rSecond, sizeof(rSecond));
+    get_second_operand_string(op, r_second, sizeof(r_second));
 
     if (is_no_result(op)) {
-        char rFirst[4];
-        get_first_operand_string(op, rFirst, sizeof(rFirst));
+        char r_fist[4];
+        get_first_operand_string(op, r_first, sizeof(r_first));
        
-        printf("%s%s %s,%s\n", opstr, cond, rFirst, rSecond);
+        printf("%s%s %s,%s\n", opstr, cond, r_first, r_second);
     } else {
-        char rDest[4];
+        char r_dest[4];
         // check if condition code flag is set
         if (op & 0x00100000) {
             setcond = "S";
@@ -194,27 +194,27 @@ static void data_proc_instr(uint32_t op) {
             setcond = "";
         }
 
-        get_destination_string(op, rDest, sizeof(rDest));
+        get_destination_string(op, r_dest, sizeof(r_dest));
 
         if (is_single_op(op)) {
             printf("%s%s%s %s,%s\n", opstr, cond, setcond, 
-                rDest, rSecond);
+                r_dest, r_second);
         } else {
-            char rFirst[4];
-            get_first_operand_string(op, rFirst, sizeof(rFirst));
+            char r_first[4];
+            get_first_operand_string(op, r_first, sizeof(r_first));
             printf("%s%s%s %s,%s,%s\n", opstr, cond, setcond,
-                rDest, rFirst, rSecond);
+                r_dest, r_first, r_second);
         }
     }
 }
 
 static void mrs_instr(uint32_t op) {
     
-    char cond[4], rDest[4];
-    char* psr;
+    char cond[4], r_dest[4];
+    char *psr;
 
     get_condition_string(op, cond, sizeof(cond));
-    get_destination_string(op, rDest, sizeof(rDest));
+    get_destination_string(op, r_dest, sizeof(r_dest));
 
     if (op & 0x00400000) {
         // source PSR = SPSR_<currentmode>
@@ -223,41 +223,41 @@ static void mrs_instr(uint32_t op) {
         psr = "CPSR";
     }
 
-    printf("MRS%s %s,%s\n", cond, rDest, psr);
+    printf("MRS%s %s,%s\n", cond, r_dest, psr);
 }
 
-static void msr_instr(uint32_t op, PSR_FLAG flg) {
+static void msr_instr(uint32_t op, PSRFlag flg) {
     
-    char cond[4], rSecond[16];
-    char* psr;
+    char cond[4], r_second[16];
+    char *psr;
 
     get_condition_string(op, cond, sizeof(cond));
-    get_second_operand_string(op, rSecond, sizeof(rSecond));
+    get_second_operand_string(op, r_second, sizeof(r_second));
 
     if (op & 0x00400000) {
         // destination psr = SPSR_<currentmode>
-        if (flg == PSR_FLAG_BITS) {
+        if (flg == PSRFlagBits) {
             psr = "SPSR_flg";
         } else {
             psr = "SPSR";
         }
     } else {
-        if (flg == PSR_FLAG_BITS) {
+        if (flg == PSRFlagBits) {
             psr = "CPSR_flg";
         } else {
             psr = "CPSR";
         }
     }
 
-    printf("MSR%s %s, %s\n", cond, psr, rSecond);
+    printf("MSR%s %s, %s\n", cond, psr, r_second);
 }
 
 void dp_psr_instr(uint32_t op) {
 
     if (is_msr(op)) {
-        msr_instr(op, PSR_FLAG_NONE);
+        msr_instr(op, PSRFlagNone);
     } else if (is_msr_flg(op)) { 
-        msr_instr(op, PSR_FLAG_BITS);
+        msr_instr(op, PSRFlagBits);
     } else if (is_mrs(op)) {
         mrs_instr(op);
     } else {

@@ -29,7 +29,7 @@
 static int readop(/*out */ uint32_t * op) {
 
     char c;
-    int i;
+    uint8_t i;
 
     for (i = 0; i < 4; i++) {
         c = getc(stdin);

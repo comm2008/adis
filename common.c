@@ -21,10 +21,10 @@
 
 #include "common.h"
 
-void get_condition_string(uint32_t op, char* buffer, int bsize) {
+void get_condition_string(uint32_t op, char *buffer, size_t bsize) {
 
-    char* tmp;
-    int cond = (op & 0xF0000000) >> 28;
+    char *tmp;
+    uint32_t cond = (op & 0xF0000000) >> 28;
 
     switch(cond) {
         case 0x00:
@@ -96,13 +96,13 @@ void get_condition_string(uint32_t op, char* buffer, int bsize) {
     memcpy(buffer, tmp, ADIS_MIN(bsize, sizeof(tmp))); 
 }
 
-void get_shift_string(uint32_t shift, char* buffer, int bsize) {
+void get_shift_string(uint32_t shift, char *buffer, size_t bsize) {
 
-    char* sType;
+    char *s_type;
 
     if (shift & 0x01) {
         // shifted by amount in register
-        int sReg = shift & 0xE0 >> 4;
+        uint32_t s_reg = shift & 0xE0 >> 4;
         switch (shift & 0x06 >> 1) {
             case 0x00:
                 // logical left
@@ -123,7 +123,7 @@ void get_shift_string(uint32_t shift, char* buffer, int bsize) {
         snprintf(buffer, ADIS_MIN(bsize, sizeof(",XXX Rxx")),
             ",%s R%d", sType, sReg);
     } else {
-        int imm = shift & 0xF0 >> 3;
+        uint32_t imm = shift & 0xF0 >> 3;
         if (imm != 0) {
             switch (shift & 0x06 >> 1) {
                 case 0x00:

@@ -26,7 +26,7 @@
 
 #define MAX_INSTR_LENGTH 64
 
-void get_condition_string(uint32_t op, char* buffer, int bsize);
-void get_shift_string(uint32_t shift, char* buffer, int bsize);
+void get_condition_string(uint32_t op, char *buffer, size_t bsize);
+void get_shift_string(uint32_t shift, char *buffer, size_t bsize);
 
 #endif  // __ADIS_COMMON_H__
