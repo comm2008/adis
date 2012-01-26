@@ -106,45 +106,45 @@ void get_shift_string(uint32_t shift, char *buffer, size_t bsize) {
         switch (shift & 0x06 >> 1) {
             case 0x00:
                 // logical left
-                sType = "LSL";
+                s_type = "LSL";
                 break;
             case 0x01:
                 // logical right
-                sType = "LSR";
+                s_type = "LSR";
                 break;
             case 0x02:
                 // arithmetic right
-                sType = "ASR";
+                s_type = "ASR";
                 break;
             case 0x03:
-                sType = "ROR";
+                s_type = "ROR";
                 break;
         }
         snprintf(buffer, ADIS_MIN(bsize, sizeof(",XXX Rxx")),
-            ",%s R%d", sType, sReg);
+            ",%s R%d", s_type, s_reg);
     } else {
         uint32_t imm = shift & 0xF0 >> 3;
         if (imm != 0) {
             switch (shift & 0x06 >> 1) {
                 case 0x00:
                     // logical left
-                    sType = "LSL";
+                    s_type = "LSL";
                     break;
                 case 0x01:
                     // logical right
-                    sType = "LSR";
+                    s_type = "LSR";
                     break;
                 case 0x02:
                     // arithmetic right
-                    sType = "ASR";
+                    s_type = "ASR";
                     break;
                 case 0x03:
                     // rotate right
-                    sType = "ROR";
+                    s_type = "ROR";
                     break;
             }
             snprintf(buffer, ADIS_MIN(bsize, sizeof(",XXX #xx")),
-                ",%s #%d", sType, imm);
+                ",%s #%d", s_type, imm);
         } else if (bsize > 0) {
             buffer[0] = 0;
         }

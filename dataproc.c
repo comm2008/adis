@@ -181,7 +181,7 @@ static void data_proc_instr(uint32_t op) {
     get_second_operand_string(op, r_second, sizeof(r_second));
 
     if (is_no_result(op)) {
-        char r_fist[4];
+        char r_first[4];
         get_first_operand_string(op, r_first, sizeof(r_first));
        
         printf("%s%s %s,%s\n", opstr, cond, r_first, r_second);
