@@ -11,27 +11,25 @@ all : ${EXEC}
 ${EXEC} : ${OBJECTS}
 	${CC} ${CFLAGS} ${OBJECTS} -o ${EXEC}
 
-#FIXME: make dependencies extensions more consistent
+predicates.o : predicates.c
 
-predicates.o : predicates.h
+common.o : common.c
 
-common.o : common.h
+dataproc.o : dataproc.c common.c
 
-dataproc.o : dataproc.h common.h
+multi.o : multi.c common.c
 
-multi.o : multi.h common.h
+dataswap.o : dataswap.c common.c
 
-dataswap.o : dataswap.h common.h
+branch.o : branch.c common.c
 
-branch.o : branch.c common.h
+bdt.o : bdt.c common.c
 
-bdt.o : bdt.h common.h
+sdt.o : sdt.c common.c
 
-sdt.o : sdt.h common.h
+swi.o : swi.c common.c
 
-swi.o : swi.c common.h
-
-main.o : predicates.h dataproc.h multi.h dataswap.h branch.h sdt.h swi.h main.c
+main.o : predicates.c dataproc.c multi.c dataswap.c branch.c sdt.c swi.c main.c
 
 clean:
 	rm ${EXEC} ${OBJECTS}

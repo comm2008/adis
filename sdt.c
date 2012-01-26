@@ -17,7 +17,6 @@
  */
 
 #include <stdio.h>
-#include <string.h>
 
 #include "sdt.h"
 #include "common.h"
