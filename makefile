@@ -2,7 +2,7 @@
 
 CC = gcc
 CFLAGS = -g -Wall
-OBJECTS = common.o dataproc.o multi.o dataswap.o branch.o sdt.o swi.o predicates.o main.o
+OBJECTS = common.o dataproc.o multi.o dataswap.o branch.o bdt.o sdt.o swi.o predicates.o main.o
 
 EXEC = adis
 
@@ -10,6 +10,8 @@ all : ${EXEC}
 
 ${EXEC} : ${OBJECTS}
 	${CC} ${CFLAGS} ${OBJECTS} -o ${EXEC}
+
+#FIXME: make dependencies extensions more consistent
 
 predicates.o : predicates.h
 
@@ -22,6 +24,8 @@ multi.o : multi.h common.h
 dataswap.o : dataswap.h common.h
 
 branch.o : branch.c common.h
+
+bdt.o : bdt.h common.h
 
 sdt.o : sdt.h common.h
 
