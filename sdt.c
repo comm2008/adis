@@ -90,8 +90,8 @@ void sdt_instr(uint32_t op) {
 
     // load / store
     if (op & 0x00100000) {
-        printf("LDR%s%s %s,%s", cond, tsize, r_srcdest, addr);
+        printf("LDR%s%s %s,%s\n", cond, tsize, r_srcdest, addr);
     } else {
-        printf("STR%s%s %s,%s", cond, tsize, r_srcdest, addr);
+        printf("STR%s%s %s,%s\n", cond, tsize, r_srcdest, addr);
     }
 }

@@ -50,7 +50,7 @@ static void get_register_list_string(uint32_t op, char **buffer) {
     uint8_t pos = 0, max = ADIS_INIT_ALLOC, before = 0, i = 0;
 
     if (ret == NULL) {
-        printf("BDT: Failed to allocate memory.");
+        printf("BDT: Failed to allocate memory.\n");
         return;
     }
 
@@ -63,7 +63,7 @@ static void get_register_list_string(uint32_t op, char **buffer) {
             // reallocate
             max *= 2;
             if (realloc(ret, sizeof(char)*max) == NULL) {
-                printf("BDT: Failed to allocate memory.");
+                printf("BDT: Failed to allocate memory.\n");
                 return;
             }
         }
