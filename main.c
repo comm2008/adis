@@ -24,7 +24,7 @@
 #include "multi.h"
 #include "dataswap.h"
 #include "branch.h"
-#include "sdt.h"
+#include "dt_single.h"
 
 static int readop(/*out */ uint32_t * op) {
 
@@ -64,7 +64,7 @@ int main(int argc, char* argv[]) {
         } else if (is_branch(op)) {
             branch_instr(op);
         } else if (is_single_data_transfer(op)) {
-            sdt_instr(op);
+            dt_single_instr(op);
         } else {
             printf("Unrecognized instruction 0x%x\n", op);
             return 1;

@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2012 Matthew Rheaume
+ *  Copyright (C) 2011 Matthew Rheaume
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -16,11 +16,16 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef __ADIS_BDT_H__
-#define __ADIS_BDT_H__
+#include <stdio.h>
 
-#include <stdint.h>
+#include "sw_interrupt.h"
+#include "common.h"
 
-void bdt_instr(uint32_t op);
+void sw_interrupt_instr(uint32_t op) {
 
-#endif  // __ADIS_BDT_H__
+    char cond[4];
+
+    get_condition_string(op, cond, sizeof(cond));
+
+    printf("SWI%s 0x%X\n", cond, op & 0x00FFFFFF);
+}

@@ -16,16 +16,11 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include <stdio.h>
+#ifndef __ADIS_DT_SINGLE_H__
+#define __ADIS_DT_SINGLE_H__
 
-#include "swi.h"
-#include "common.h"
+#include <stdint.h>
 
-void swi_instr(uint32_t op) {
+void dt_single_instr(uint32_t op);
 
-    char cond[4];
-
-    get_condition_string(op, cond, sizeof(cond));
-
-    printf("SWI%s 0x%X\n", cond, op & 0x00FFFFFF);
-}
+#endif  // __ADIS_DT_SINGLE_H__

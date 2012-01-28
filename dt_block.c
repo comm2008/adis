@@ -19,7 +19,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "bdt.h"
+#include "dt_block.h"
 #include "common.h"
 
 #define ADIS_INIT_ALLOC 16
@@ -84,7 +84,7 @@ static void get_register_list_string(uint32_t op, char **buffer) {
     *buffer = ret;
 }
 
-void bdt_instr(uint32_t op) {
+void dt_block_instr(uint32_t op) {
 
     char cond[4], addr_mode[4], r_base[4];
     char *psr, *wb, *r_list = NULL;

@@ -18,7 +18,7 @@
 
 #include <stdio.h>
 
-#include "sdt.h"
+#include "dt_single.h"
 #include "common.h"
 
 static void get_srcdest_string(uint32_t op, char *buffer, size_t bsize) {
@@ -72,7 +72,7 @@ static void get_addr_string(uint32_t op, char *buffer, size_t bsize) {
     }
 }
 
-void sdt_instr(uint32_t op) {
+void dt_single_instr(uint32_t op) {
 
     char cond[4], r_srcdest[4], addr[32];
     char *tsize; 

@@ -16,11 +16,11 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef __ADIS_SWI_H__
-#define __ADIS_SWI_H__
+#ifndef __ADIS_SW_INTERRUPT_H__
+#define __ADIS_SW_INTERRUPT_H__
 
 #include <stdint.h>
 
-void swi_instr(uint32_t op);
+void sw_interrupt_instr(uint32_t op);
 
-#endif  // __ADIS_SWI_H__
+#endif  // __ADIS_SW_INTERRUPT_H__
