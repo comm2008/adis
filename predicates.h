@@ -31,22 +31,22 @@ int is_multi(uint32_t op);
 int is_dp_psr(uint32_t op);
 
 // single data transfer
-int is_single_data_transfer(uint32_t op);
+int is_dt_single(uint32_t op);
 
 // block data transfer
-int is_block_data_transfer(uint32_t op);
+int is_dt_block(uint32_t op);
 
 // branch
 int is_branch(uint32_t op);
 
 // coproc data transfer
-int is_cp_data_transfer(uint32_t op);
+int is_dt_coproc(uint32_t op);
 
 // coproc data operation
-int is_cp_data_operation(uint32_t op);
+int is_dataop_coproc(uint32_t op);
 
 // coproc register transfer
-int is_cp_register_transfer(uint32_t op);
+int is_rt_coproc(uint32_t op);
 
 // software interrupt
 int is_sw_interrupt(uint32_t op);

@@ -65,9 +65,9 @@ int main(int argc, char* argv[]) {
             dp_psr_instr(op);
         } else if (is_branch(op)) {
             branch_instr(op);
-        } else if (is_single_data_transfer(op)) {
+        } else if (is_dt_single(op)) {
             dt_single_instr(op);
-        } else if (is_block_data_transfer(op)) {
+        } else if (is_dt_block(op)) {
             dt_block_instr(op);
         } else if (is_sw_interrupt(op)) {
             sw_interrupt_instr(op);
