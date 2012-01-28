@@ -25,6 +25,8 @@
 #include "dataswap.h"
 #include "branch.h"
 #include "dt_single.h"
+#include "dt_block.h"
+#include "sw_interrupt.h"
 
 static int readop(/*out */ uint32_t * op) {
 
@@ -65,6 +67,10 @@ int main(int argc, char* argv[]) {
             branch_instr(op);
         } else if (is_single_data_transfer(op)) {
             dt_single_instr(op);
+        } else if (is_block_data_transfer(op)) {
+            dt_block_instr(op);
+        } else if (is_sw_interrupt(op)) {
+            sw_interrupt_instr(op);
         } else {
             printf("Unrecognized instruction 0x%x\n", op);
             return 1;
