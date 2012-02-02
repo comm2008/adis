@@ -44,7 +44,7 @@ void dt_coproc_instr(uint32_t op) {
     get_addr_string(op, get_r_base(op), addr, sizeof(addr));
 
     coproc_num = get_coproc_num(op);
-    r_srcdest = get_r_srcdest(op)
+    r_srcdest = get_r_srcdest(op);
 
     // long bit set?
     if (op & 0x00400000) {

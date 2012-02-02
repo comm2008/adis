@@ -26,6 +26,7 @@
 #include "branch.h"
 #include "dt_single.h"
 #include "dt_block.h"
+#include "dt_coproc.h"
 #include "dataop_coproc.h"
 #include "sw_interrupt.h"
 
@@ -70,6 +71,8 @@ int main(int argc, char* argv[]) {
             dt_single_instr(op);
         } else if (is_dt_block(op)) {
             dt_block_instr(op);
+        } else if (is_dt_coproc(op)) {
+            dt_coproc_instr(op);
         } else if (is_dataop_coproc(op)) {
             dataop_coproc_instr(op);
         } else if (is_sw_interrupt(op)) {
