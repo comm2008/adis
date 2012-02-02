@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2011 Matthew Rheaume
+ *  Copyright (C) 2012 Matthew Rheaume
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -16,18 +16,11 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef __ADIS_COMMON_H__
-#define __ADIS_COMMON_H__
+#ifndef __ADIS_DT_COPROC_H__
+#define __ADIS_DT_COPROC_H__
 
 #include <stdint.h>
 
-#define ADIS_MAX(op1, op2) ((op1 < op2) ? op2 : op1)
-#define ADIS_MIN(op1, op2) ((op1 < op2) ? op1 : op2)
+void dt_coproc_instr(uint32_t op);
 
-#define MAX_INSTR_LENGTH 64
-
-void get_condition_string(uint32_t op, char *buffer, size_t bsize);
-void get_shift_string(uint32_t shift, char *buffer, size_t bsize);
-void get_addr_string(uint32_t op, uint8_t r_base, char *buffer, size_t bsize);
-
-#endif  // __ADIS_COMMON_H__
+#endif  // __ADIS_DT_COPROC_H__

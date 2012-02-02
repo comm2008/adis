@@ -21,6 +21,28 @@
 
 #include "common.h"
 
+static void get_offset_string(uint32_t op, char *buffer, size_t bsize) {
+
+    if (op & 0x02000000) {
+        // shift + register
+        uint32_t reg = op & 0x0000000F;
+        uint32_t shift = (op & 0x00000FF0) >> 4;
+
+        snprintf(buffer, ADIS_MIN(bsize, sizeof("xRxx")), "%sR%d", 
+            op & 0x00800000 ? "+" : "-", reg);
+
+        if (reg < 10) {
+            get_shift_string(shift, buffer + 3, bsize - 3);
+        } else {
+            get_shift_string(shift, buffer + 4, bsize - 4);
+        }
+    } else {
+        // immediate value
+        snprintf(buffer, ADIS_MIN(bsize, sizeof("0xFFFFFFFF")), 
+            "0x%.8X", op & 0x00000FFF);
+    }
+}
+
 void get_condition_string(uint32_t op, char *buffer, size_t bsize) {
 
     char *tmp;
@@ -149,4 +171,20 @@ void get_shift_string(uint32_t shift, char *buffer, size_t bsize) {
             buffer[0] = 0;
         }
     }
-}           
+}
+
+void get_addr_string(uint32_t op, uint8_t r_base, char *buffer, size_t bsize) {
+
+    char offset[16];
+
+    get_offset_string(op, offset, sizeof(offset));
+
+    // pre-indexed
+    if (op & 0x01000000) {
+        snprintf(buffer, ADIS_MIN(bsize, sizeof(r_base) + sizeof(offset) + 6),
+            "[R%d,%s]%s", r_base, offset, op & 0x00200000 ? "!" : "");
+    } else {
+        snprintf(buffer, ADIS_MIN(bsize, sizeof(r_base) + sizeof(offset) + 5),
+            "[R%d],%s", r_base, offset);
+    }
+}
