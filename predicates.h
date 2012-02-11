@@ -22,33 +22,53 @@
 #include <stdint.h>
 
 // data swap operation
-int is_data_swap(uint32_t op);
+static inline int is_data_swap(uint32_t op) {
+    return !((op & 0x0FB00FF0) ^ 0x01000090);
+}
 
 // multiplication operation
-int is_multi(uint32_t op);
+static inline int is_multi(uint32_t op) {
+    return !((op & 0x0FC00050) ^ 0x00000050);
+}
 
 // data processing or psr transfer
-int is_dp_psr(uint32_t op);
+static inline int is_dp_psr(uint32_t op) {
+    return !((op & 0x0C000000) ^ 0x00000000);
+}
 
 // single data transfer
-int is_dt_single(uint32_t op);
+static inline int is_dt_single(uint32_t op) {
+    return !((op & 0x0C000000) ^ 0x04000000);
+}
 
 // block data transfer
-int is_dt_block(uint32_t op);
+static inline int is_dt_block(uint32_t op) {
+    return !((op & 0x0E000000) ^ 0x08000000);
+}
 
 // branch
-int is_branch(uint32_t op);
+static inline int is_branch(uint32_t op) {
+    return !((op & 0x0E000000) ^ 0x0A000000);
+}
 
 // coproc data transfer
-int is_dt_coproc(uint32_t op);
+static inline int is_dt_coproc(uint32_t op) {
+    return !((op & 0x0E000000) ^ 0x0C000000);
+}
 
 // coproc data operation
-int is_dataop_coproc(uint32_t op);
+static inline int is_dataop_coproc(uint32_t op) {
+    return !((op & 0x0F000010) ^ 0x0E000000);
+}
 
 // coproc register transfer
-int is_rt_coproc(uint32_t op);
+static inline int is_rt_coproc(uint32_t op) {
+    return !((op & 0x0F000010) ^ 0x0E000010);
+}
 
 // software interrupt
-int is_sw_interrupt(uint32_t op);
+static inline int is_sw_interrupt(uint32_t op) {
+    return !((op & 0x0F000000) ^ 0x0F000000);
+}
 
 #endif  // __ADIS_PREDICATES_H__
