@@ -140,37 +140,6 @@ static void get_first_operand_string(uint32_t op, char *buffer, size_t bsize) {
     snprintf(buffer, ADIS_MIN(bsize, sizeof("Rxx")), "R%d", regnum);
 }
 
-static void get_second_operand_string(uint32_t op, char *buffer, size_t bsize) {
-
-    uint32_t shift;
-
-    if (op & 0x02000000) {
-        
-        uint32_t reg = op & 0x0000000F;
-        shift = (op & 0x00000FF0) >> 4;
-
-        snprintf(buffer, ADIS_MIN(bsize, sizeof("Rxx")), "R%d", reg);
-        
-        if (reg < 10) {
-            get_shift_string(shift, buffer + 2, bsize - 2);
-        } else {
-            get_shift_string(shift, buffer + 3, bsize - 3);
-        }
-    } else {
-        // operand is immediate value
-        uint32_t imm = op & 0x000000FF;
-        shift = (op & 0x00000F00) >> 8;
-
-        if (shift) {
-            snprintf(buffer, ADIS_MIN(bsize, sizeof("#xxx,ROR #xxx")),
-                "#%d,ROR #%d", imm, shift);
-        } else {
-            snprintf(buffer, ADIS_MIN(bsize, sizeof("#xxx")), "#%d", imm);
-        }
-
-    }
-}
-
 static void data_proc_instr(uint32_t op) {
 
     char cond[4], opstr[4], r_second[16];
@@ -178,7 +147,7 @@ static void data_proc_instr(uint32_t op) {
     
     get_op_string(op, opstr, sizeof(opstr));
     get_condition_string(op, cond, sizeof(cond));
-    get_second_operand_string(op, r_second, sizeof(r_second));
+    get_offset_string(op, r_second, sizeof(r_second), 1);
 
     if (is_no_result(op)) {
         char r_first[4];
@@ -232,7 +201,7 @@ static void msr_instr(uint32_t op, PSRFlag flg) {
     char *psr;
 
     get_condition_string(op, cond, sizeof(cond));
-    get_second_operand_string(op, r_second, sizeof(r_second));
+    get_offset_string(op, r_second, sizeof(r_second), 1);
 
     if (op & 0x00400000) {
         // destination psr = SPSR_<currentmode>

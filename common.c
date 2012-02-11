@@ -21,25 +21,42 @@
 
 #include "common.h"
 
-static void get_offset_string(uint32_t op, char *buffer, size_t bsize) {
+void get_offset_string(uint32_t op, char *buffer, size_t bsize, uint8_t dp) {
+
+    uint32_t shift;
 
     if (op & 0x02000000) {
         // shift + register
         uint32_t reg = op & 0x0000000F;
-        uint32_t shift = (op & 0x00000FF0) >> 4;
+        shift = (op & 0x00000FF0) >> 4;
 
-        snprintf(buffer, ADIS_MIN(bsize, sizeof("xRxx")), "%sR%d", 
-            op & 0x00800000 ? "+" : "-", reg);
+        // dataproc instruction doesn't have +/-
+        if (dp) {
+            snprintf(buffer, ADIS_MIN(bsize, sizeof("Rxx")), "R%d", reg);
+        } else {
+            snprintf(buffer, ADIS_MIN(bsize, sizeof("xRxx")), "%sR%d", 
+                op & 0x00800000 ? "+" : "-", reg);
+        }
 
         if (reg < 10) {
-            get_shift_string(shift, buffer + 3, bsize - 3);
+            get_shift_string(shift, buffer - dp + 3, bsize + dp - 3);
         } else {
-            get_shift_string(shift, buffer + 4, bsize - 4);
+            get_shift_string(shift, buffer - dp + 4, bsize + dp - 4);
         }
     } else {
         // immediate value
-        snprintf(buffer, ADIS_MIN(bsize, sizeof("0xFFFFFFFF")), 
-            "0x%.8X", op & 0x00000FFF);
+        uint32_t imm = op & (dp ? 0x000000FF : 0x00000FFF);
+        shift = (op & 0x00000F00) >> 8;
+        // first two cases are only for dataproc
+        if (dp && shift) {
+            snprintf(buffer, ADIS_MIN(bsize, sizeof("#xxx,ROR #xxx")),
+                "#%d,ROR #%d", imm, shift);
+        } else if (dp) {
+            snprintf(buffer, ADIS_MIN(bsize, sizeof("#xxx")), "#%d", imm);
+        } else {
+            snprintf(buffer, ADIS_MIN(bsize, sizeof("0xFFFFFFFF")), 
+                "0x%.8X", imm);
+        }
     }
 }
 
@@ -177,7 +194,7 @@ void get_addr_string(uint32_t op, uint8_t r_base, char *buffer, size_t bsize) {
 
     char offset[16];
 
-    get_offset_string(op, offset, sizeof(offset));
+    get_offset_string(op, offset, sizeof(offset), 0);
 
     // pre-indexed
     if (op & 0x01000000) {
