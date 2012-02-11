@@ -27,26 +27,26 @@ typedef enum _PSRFlag {
     PSRFlagBits
 } PSRFlag;
 
-static int is_mrs(uint32_t op) {
+static inline int is_mrs(uint32_t op) {
     return !((op & 0x0FBF0FFF) ^ 0x010F0000);
 }
 
-static int is_msr(uint32_t op) {
+static inline int is_msr(uint32_t op) {
     return !((op & 0x0FBFFFF0) ^ 0x012CF000);
 }
 
-static int is_msr_flg(uint32_t op) {
+static inline int is_msr_flg(uint32_t op) {
     return !((op & 0x0DBFF000) ^ 0x0128F000);
 }
 
-static int is_single_op(uint32_t op) {
+static inline int is_single_op(uint32_t op) {
 
     int opcode = (op & 0x01E00000) >> 21;
 
     return (opcode == 0x1101) || (opcode == 0x1111);
 }
 
-static int is_no_result(uint32_t op) {
+static inline int is_no_result(uint32_t op) {
     
     int opcode = (op & 0x01E00000) >> 21;
 
@@ -128,34 +128,28 @@ static void get_op_string(uint32_t op, char *buffer, size_t bsize) {
     memcpy(buffer, tmp, ADIS_MIN(bsize, sizeof(tmp)));
 }
 
-static void get_destination_string(uint32_t op, char *buffer, size_t bsize) {
-    
-    uint32_t regnum = (op & 0x0000F000) >> 12;
-    snprintf(buffer, ADIS_MIN(bsize, sizeof("Rxx")), "R%d", regnum);
+static inline uint8_t get_destination_register(uint32_t op) {
+    return (uint8_t)((op & 0x0000F000) >> 12);
 }
 
-static void get_first_operand_string(uint32_t op, char *buffer, size_t bsize) {
-
-    uint32_t regnum = (op & 0x000F0000) >> 16;
-    snprintf(buffer, ADIS_MIN(bsize, sizeof("Rxx")), "R%d", regnum);
+static inline uint8_t get_first_operand_register(uint32_t op) {
+     return (uint8_t)((op & 0x000F0000) >> 16);
 }
 
 static void data_proc_instr(uint32_t op) {
 
-    char cond[4], opstr[4], r_second[16];
-    char *setcond;
+    char cond[4], opstr[4], offset[16], *setcond;
     
     get_op_string(op, opstr, sizeof(opstr));
     get_condition_string(op, cond, sizeof(cond));
-    get_offset_string(op, r_second, sizeof(r_second), 1);
+    get_offset_string(op, offset, sizeof(offset), 1);
 
     if (is_no_result(op)) {
-        char r_first[4];
-        get_first_operand_string(op, r_first, sizeof(r_first));
+        uint8_t r_first = get_first_operand_register(op);
        
-        printf("%s%s %s,%s\n", opstr, cond, r_first, r_second);
+        printf("%s%s R%d,%s\n", opstr, cond, r_first, offset);
     } else {
-        char r_dest[4];
+        uint8_t r_dest;
         // check if condition code flag is set
         if (op & 0x00100000) {
             setcond = "S";
@@ -163,27 +157,27 @@ static void data_proc_instr(uint32_t op) {
             setcond = "";
         }
 
-        get_destination_string(op, r_dest, sizeof(r_dest));
+        r_dest = get_destination_register(op);
 
         if (is_single_op(op)) {
-            printf("%s%s%s %s,%s\n", opstr, cond, setcond, 
-                r_dest, r_second);
+            printf("%s%s%s R%d,%s\n", opstr, cond, setcond, 
+                r_dest, offset);
         } else {
-            char r_first[4];
-            get_first_operand_string(op, r_first, sizeof(r_first));
-            printf("%s%s%s %s,%s,%s\n", opstr, cond, setcond,
-                r_dest, r_first, r_second);
+            uint8_t r_first;
+            r_first = get_first_operand_register(op);
+            printf("%s%s%s R%d,R%d,%s\n", opstr, cond, setcond,
+                r_dest, r_first, offset);
         }
     }
 }
 
 static void mrs_instr(uint32_t op) {
     
-    char cond[4], r_dest[4];
-    char *psr;
+    char cond[4], *psr;
+    uint8_t r_dest;
 
     get_condition_string(op, cond, sizeof(cond));
-    get_destination_string(op, r_dest, sizeof(r_dest));
+    r_dest = get_destination_register(op);
 
     if (op & 0x00400000) {
         // source PSR = SPSR_<currentmode>
@@ -192,16 +186,15 @@ static void mrs_instr(uint32_t op) {
         psr = "CPSR";
     }
 
-    printf("MRS%s %s,%s\n", cond, r_dest, psr);
+    printf("MRS%s R%d,%s\n", cond, r_dest, psr);
 }
 
 static void msr_instr(uint32_t op, PSRFlag flg) {
     
-    char cond[4], r_second[16];
-    char *psr;
+    char cond[4], offset[16], *psr;
 
     get_condition_string(op, cond, sizeof(cond));
-    get_offset_string(op, r_second, sizeof(r_second), 1);
+    get_offset_string(op, offset, sizeof(offset), 1);
 
     if (op & 0x00400000) {
         // destination psr = SPSR_<currentmode>
@@ -218,7 +211,7 @@ static void msr_instr(uint32_t op, PSRFlag flg) {
         }
     }
 
-    printf("MSR%s %s, %s\n", cond, psr, r_second);
+    printf("MSR%s %s,%s\n", cond, psr, offset);
 }
 
 void dp_psr_instr(uint32_t op) {
