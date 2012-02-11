@@ -144,7 +144,7 @@ static void get_second_operand_string(uint32_t op, char *buffer, size_t bsize) {
 
     uint32_t shift;
 
-    if (!(op & 0x02000000)) {
+    if (op & 0x02000000) {
         
         uint32_t reg = op & 0x0000000F;
         shift = (op & 0x00000FF0) >> 4;
