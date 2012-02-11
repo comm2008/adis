@@ -21,39 +21,35 @@
 #include "dataswap.h"
 #include "common.h"
 
-static void get_destination_string(uint32_t op, char *buffer, size_t bsize) {
-
-    uint32_t regnum = (op & 0x0000F000) >> 12;
-    snprintf(buffer, ADIS_MIN(bsize, sizeof("Rxx")), "R%d", regnum);
+static inline uint8_t get_destination_register(uint32_t op) {
+    return (uint8_t)((op & 0x0000F000) >> 12);
 }
 
-static void get_source_string(uint32_t op, char *buffer, size_t bsize) {
-
-    uint32_t regnum = (op & 0x0000000F);
-    snprintf(buffer, ADIS_MIN(bsize, sizeof("Rxx")), "R%d", regnum);
+static inline uint8_t get_source_register(uint32_t op) {
+    return (uint8_t)(op & 0x0000000F);
 }
 
-static void get_base_string(uint32_t op, char *buffer, size_t bsize) {
-
-    uint32_t regnum = (op & 0x000F0000) >> 16;
-    snprintf(buffer, ADIS_MIN(bsize, sizeof("Rxx")), "R%d", regnum);
+static inline uint8_t get_base_register(uint32_t op) {
+    return (uint8_t)((op & 0x000F0000) >> 16);
 }
 
 void data_swap_instr(uint32_t op) {
 
-    char cond[4], r_dest[4], r_src[4], r_base[4];
+    char cond[4];
+    uint8_t r_dest, r_src, r_base;
 
     get_condition_string(op, cond, sizeof(cond));
-    get_destination_string(op, cond, sizeof(cond));
-    get_source_string(op, cond, sizeof(cond));
-    get_base_string(op, cond, sizeof(r_base));
+
+    r_dest = get_destination_register(op);
+    r_src = get_source_register(op);
+    r_base = get_base_register(op);
 
     if (op & 0x00400000) {
         // swap byte
-        printf("SWP%sB %s,%s,[%s]\n", cond, r_dest, r_src, r_base);
+        printf("SWP%sB R%d,R%d,[R%d]\n", cond, r_dest, r_src, r_base);
     } else {
         // swap word
-        printf("SWP%s %s,%s,[%s]\n", cond, r_dest, r_src, r_base);
+        printf("SWP%s R%d,R%d,[R%d]\n", cond, r_dest, r_src, r_base);
     }
 }
 
