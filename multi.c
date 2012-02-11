@@ -21,39 +21,31 @@
 #include "multi.h"
 #include "common.h"
 
-static void get_destination_string(uint32_t op, char *buffer, size_t bsize) {
-    
-    uint32_t regnum = (op & 0x000F0000) >> 16;
-    snprintf(buffer, ADIS_MIN(bsize, sizeof("Rxx")), "R%d", regnum);
+static inline uint8_t get_destination_register(uint32_t op) {
+    return (uint8_t)((op & 0x000F0000) >> 16);
 }
 
-static void get_first_operand_string(uint32_t op, char *buffer, size_t bsize) {
-
-    uint32_t regnum = (op & 0x00000F00) >> 8;
-    snprintf(buffer, ADIS_MIN(bsize, sizeof("Rxx")), "R%d", regnum);
+static inline uint8_t get_first_operand_register(uint32_t op) {
+    return (uint8_t)((op & 0x00000F00) >> 8);
 }
 
-static void get_second_operand_string(uint32_t op, char *buffer, size_t bsize) {
-
-    uint32_t regnum = (op & 0x0000000F);
-    snprintf(buffer, ADIS_MIN(bsize, sizeof("Rxx")), "R%d", regnum);
+static inline uint8_t get_second_operand_register(uint32_t op) {
+    return (uint8_t)(op & 0x0000000F);
 }
 
-static void get_third_operand_string(uint32_t op, char *buffer, size_t bsize) {
-    
-    uint32_t regnum = (op & 0x0000F000) >> 12;
-    snprintf(buffer, ADIS_MIN(bsize, sizeof("Rxx")), "R%d", regnum);
+static inline uint8_t get_third_operand_register(uint32_t op) {
+    return (uint8_t)((op & 0x0000F000) >> 12);
 }
 
 void multi_instr(uint32_t op) {
 
-    char cond[4], r_dest[4], r_first[4], r_second[4];
-    char *setcond;
+    char cond[4], *setcond;
+    uint8_t r_first, r_second, r_dest;
 
     get_condition_string(op, cond, sizeof(cond));
-    get_destination_string(op, r_dest, sizeof(r_dest));
-    get_first_operand_string(op, r_first, sizeof(r_first));
-    get_second_operand_string(op, r_second, sizeof(r_second));
+    r_dest = get_destination_register(op);
+    r_first = get_first_operand_register(op);
+    r_second = get_second_operand_register(op);
 
     if (op & 0x00100000) {
         setcond = "S";
@@ -63,13 +55,12 @@ void multi_instr(uint32_t op) {
 
     if (op & 0x00200000) {
         // multiply and accumulate
-        char r_third[4];
+        uint8_t r_third = get_third_operand_register(op);
 
-        get_third_operand_string(op, r_third, sizeof(r_third));
-        printf("MLA%s%s %s,%s,%s,%s\n", cond, setcond, r_dest, 
+        printf("MLA%s%s R%d,R%d,R%d,R%d\n", cond, setcond, r_dest, 
             r_first, r_second, r_third);
     } else {
-        printf("MUL%s%s %s,%s,%s\n", cond, setcond, r_dest,
+        printf("MUL%s%s R%d,R%d,R%d\n", cond, setcond, r_dest,
             r_first, r_second);
     }
 }
