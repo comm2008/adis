@@ -24,10 +24,8 @@
 
 #define ADIS_INIT_ALLOC 16
 
-static void get_base_string(uint32_t op, char *buffer, size_t bsize) {
-    
-    uint32_t regnum = (op & 0x000F0000) >> 16;
-    snprintf(buffer, ADIS_MIN(bsize, sizeof("Rxx")), "R%d", regnum);
+static inline uint8_t get_base_register(uint32_t op) {
+    return (uint8_t)((op & 0x000F0000) >> 16);
 }
 
 static void get_addr_mode_string(uint32_t op, char *buffer, size_t bsize) {
@@ -58,7 +56,7 @@ static void get_register_list_string(uint32_t op, char **buffer) {
     op &= 0x0000FFFF;
     ret[0] = '{';
 
-    for ( ; i < 16; i++) {
+    for ( ; (i < 16) && (op > 0); i++) {
         if ((pos + sizeof("Rxx,") + 1) >= max) {
             // reallocate
             max *= 2;
@@ -78,6 +76,8 @@ static void get_register_list_string(uint32_t op, char **buffer) {
             snprintf(ret + pos, sizeof("-Rxx,"), "-R%d,", i - 1);
             pos += i < 10 ? 3 : 4;
         }
+
+        op >>= 1;
     }
 
     ret[pos] = '}';
@@ -86,8 +86,8 @@ static void get_register_list_string(uint32_t op, char **buffer) {
 
 void dt_block_instr(uint32_t op) {
 
-    char cond[4], addr_mode[4], r_base[4];
-    char *psr, *wb, *r_list = NULL;
+    char cond[4], addr_mode[4], *psr, *wb, *r_list = NULL;
+    uint8_t r_base;
 
     
     get_register_list_string(op, &r_list);
@@ -96,8 +96,9 @@ void dt_block_instr(uint32_t op) {
         return;
     }
 
+    r_base = get_base_register(op);
+    
     get_condition_string(op, cond, sizeof(cond));
-    get_base_string(op, r_base, sizeof(r_base));
     get_addr_mode_string(op, addr_mode, sizeof(addr_mode));
 
     if (op & 0x00400000) {
@@ -113,10 +114,10 @@ void dt_block_instr(uint32_t op) {
     }
 
     if (op & 0x00100000) {
-        printf("LDR%s%s %s%s,%s%s\n", cond, addr_mode, r_base, wb,
+        printf("LDR%s%s R%d%s,%s%s\n", cond, addr_mode, r_base, wb,
             r_list, psr);
     } else {
-        printf("STM%s%s %s%s,%s%s\n", cond, addr_mode, r_base, wb,
+        printf("STM%s%s R%d%s,%s%s\n", cond, addr_mode, r_base, wb,
             r_list, psr);
     }
 
