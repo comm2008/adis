@@ -26,11 +26,11 @@ static inline uint8_t get_coproc_num(uint32_t op) {
     return (uint8_t)((op & 0x00000F00) >> 8);
 }
 
-static inline uint8_t get_r_base(uint32_t op) {
+static inline uint8_t get_base_register(uint32_t op) {
     return (uint8_t)((op & 0x000F0000) >> 16);
 }
 
-static inline uint8_t get_r_srcdest(uint32_t op) {
+static inline uint8_t get_srcdest_register(uint32_t op) {
     return (uint8_t)((op & 0x0000F000) >> 12);
 }
 
@@ -41,10 +41,10 @@ void dt_coproc_instr(uint32_t op) {
     uint8_t coproc_num, r_srcdest;
 
     get_condition_string(op, cond, sizeof(cond));
-    get_addr_string(op, get_r_base(op), addr, sizeof(addr));
+    get_addr_string(op, get_base_register(op), addr, sizeof(addr));
 
     coproc_num = get_coproc_num(op);
-    r_srcdest = get_r_srcdest(op);
+    r_srcdest = get_srcdest_register(op);
 
     // long bit set?
     if (op & 0x00400000) {

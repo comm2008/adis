@@ -26,15 +26,15 @@ static inline uint8_t get_opcode(uint32_t op) {
     return (uint8_t)((op & 0x00F00000) >> 20);
 }
 
-static inline uint8_t get_r_op1(uint32_t op) {
+static inline uint8_t get_first_operand_register(uint32_t op) {
     return (uint8_t)((op & 0x000F0000) >> 16);
 }
 
-static inline uint8_t get_r_op2(uint32_t op) {
+static inline uint8_t get_second_operand_register(uint32_t op) {
     return (uint8_t)(op & 0x0000000F);
 }
 
-static inline uint8_t get_r_dest(uint32_t op) {
+static inline uint8_t get_destination_register(uint32_t op) {
     return (uint8_t)((op & 0x0000F000) >> 12);
 }
 
@@ -54,9 +54,9 @@ void dataop_coproc_instr(uint32_t op) {
 
     opcode = get_opcode(op);
 
-    r_op1 = get_r_op1(op);
-    r_op2 = get_r_op2(op);
-    r_dest = get_r_dest(op);
+    r_op1 = get_first_operand_register(op);
+    r_op2 = get_second_operand_register(op);
+    r_dest = get_destination_register(op);
 
     coproc_num = get_coproc_num(op);
     coproc_info = get_coproc_info(op);
