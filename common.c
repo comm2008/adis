@@ -54,8 +54,8 @@ void get_offset_string(uint32_t op, char *buffer, size_t bsize, uint8_t dp) {
         } else if (dp) {
             snprintf(buffer, ADIS_MIN(bsize, sizeof("#xxx")), "#%d", imm);
         } else {
-            snprintf(buffer, ADIS_MIN(bsize, sizeof("0xFFFFFFFF")), 
-                "0x%.8X", imm);
+            snprintf(buffer, ADIS_MIN(bsize, sizeof("=0xFFF")), 
+                "=0x%.3X", imm);
         }
     }
 }

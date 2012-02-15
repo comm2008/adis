@@ -68,7 +68,7 @@ void rt_coproc_instr(uint32_t op) {
     }
 
     if (coproc_info > 0) {
-        printf("%s%s %d,0x%x,R%d,c%d,c%d,0x%x\n", opstr, cond, coproc_num,
+        printf("%s%s %d,%d,R%d,c%d,c%d,%d\n", opstr, cond, coproc_num,
             coproc_opmode, r_srcdest, coproc_srcdest, coproc_operand,
             coproc_info);
     } else {

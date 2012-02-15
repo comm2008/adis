@@ -27,5 +27,5 @@ void sw_interrupt_instr(uint32_t op) {
 
     get_condition_string(op, cond, sizeof(cond));
 
-    printf("SWI%s 0x%X\n", cond, op & 0x00FFFFFF);
+    printf("SWI%s =0x%x\n", cond, op & 0x00FFFFFF);
 }
