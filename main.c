@@ -62,8 +62,10 @@ int main(int argc, char* argv[]) {
         printf("0x%.8X:\t", count);
         if (is_data_swap(op)) {
             data_swap_instr(op);
-        }  else if (is_multi(op)) {
+        } else if (is_multi(op)) {
             multi_instr(op);
+        } else if (is_long_multi(op)) {
+            long_multi_instr(op);
         } else if (is_dp_psr(op)) {
             dp_psr_instr(op);
         } else if (is_branch(op)) {

@@ -31,6 +31,10 @@ static inline int is_multi(uint32_t op) {
     return !((op & 0x0FC00050) ^ 0x00000050);
 }
 
+static inline int is_long_multi(uint32_t op) {
+    return !((op & 0x0FE00050) ^ 0x00800050);
+}
+
 // data processing or psr transfer
 static inline int is_dp_psr(uint32_t op) {
     return !((op & 0x0C000000) ^ 0x00000000);
