@@ -86,7 +86,7 @@ static void get_register_list_string(uint32_t op, char **buffer) {
 
 void dt_block_instr(uint32_t op) {
 
-    char cond[4], addr_mode[4], *psr, *wb, *r_list = NULL;
+    char  addr_mode[4], *cond, *psr, *wb, *r_list = NULL;
     uint8_t r_base;
 
     
@@ -98,7 +98,7 @@ void dt_block_instr(uint32_t op) {
 
     r_base = get_base_register(op);
     
-    get_condition_string(op, cond, sizeof(cond));
+    cond = get_condition_string(op);
     get_addr_mode_string(op, addr_mode, sizeof(addr_mode));
 
     if (op & 0x00400000) {

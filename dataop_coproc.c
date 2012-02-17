@@ -48,9 +48,9 @@ static inline uint8_t get_coproc_info(uint32_t op) {
 
 void dataop_coproc_instr(uint32_t op) {
     uint8_t opcode, r_op1, r_op2, r_dest, coproc_num, coproc_info;
-    char cond[4];
+    char *cond;
 
-    get_condition_string(op, cond, sizeof(cond));
+    cond = get_condition_string(op);
 
     opcode = get_opcode(op);
 

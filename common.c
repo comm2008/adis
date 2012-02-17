@@ -60,7 +60,7 @@ void get_offset_string(uint32_t op, char *buffer, size_t bsize, uint8_t dp) {
     }
 }
 
-void get_condition_string(uint32_t op, char *buffer, size_t bsize) {
+char *get_condition_string(uint32_t op) {
 
     char *tmp;
     uint32_t cond = (op & 0xF0000000) >> 28;
@@ -132,7 +132,7 @@ void get_condition_string(uint32_t op, char *buffer, size_t bsize) {
             break;
     }
 
-    memcpy(buffer, tmp, ADIS_MIN(bsize, sizeof(tmp))); 
+    return tmp;
 }
 
 void get_shift_string(uint32_t shift, char *buffer, size_t bsize) {

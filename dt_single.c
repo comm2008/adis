@@ -31,12 +31,12 @@ static inline uint8_t get_srcdest_register(uint32_t op) {
 
 void dt_single_instr(uint32_t op) {
 
-    char cond[4], addr[32], *tsize;
+    char addr[32], *cond, *tsize;
     uint8_t r_srcdest;
 
     r_srcdest = get_srcdest_register(op);
 
-    get_condition_string(op, cond, sizeof(cond));
+    cond = get_condition_string(op);
     get_addr_string(op, get_base_register(op), addr, sizeof(addr));
 
     // byte / word

@@ -138,10 +138,10 @@ static inline uint8_t get_first_operand_register(uint32_t op) {
 
 static void data_proc_instr(uint32_t op) {
 
-    char cond[4], opstr[4], offset[16], *setcond;
+    char opstr[4], offset[16], *cond, *setcond;
     
     get_op_string(op, opstr, sizeof(opstr));
-    get_condition_string(op, cond, sizeof(cond));
+    cond = get_condition_string(op);
     get_offset_string(op, offset, sizeof(offset), 1);
 
     if (is_no_result(op)) {
@@ -173,10 +173,10 @@ static void data_proc_instr(uint32_t op) {
 
 static void mrs_instr(uint32_t op) {
     
-    char cond[4], *psr;
+    char *cond, *psr;
     uint8_t r_dest;
 
-    get_condition_string(op, cond, sizeof(cond));
+    cond = get_condition_string(op);
     r_dest = get_destination_register(op);
 
     if (op & 0x00400000) {
@@ -191,9 +191,9 @@ static void mrs_instr(uint32_t op) {
 
 static void msr_instr(uint32_t op, PSRFlag flg) {
     
-    char cond[4], offset[16], *psr;
+    char offset[16], *cond, *psr;
 
-    get_condition_string(op, cond, sizeof(cond));
+    cond = get_condition_string(op);
     get_offset_string(op, offset, sizeof(offset), 1);
 
     if (op & 0x00400000) {

@@ -47,11 +47,11 @@ static inline uint8_t get_coproc_opmode(uint32_t op) {
 
 void rt_coproc_instr(uint32_t op) {
 
-    char cond[4], *opstr;
+    char *cond, *opstr;
     uint8_t coproc_num, coproc_opmode, coproc_srcdest, coproc_operand;
     uint8_t coproc_info, r_srcdest;
 
-    get_condition_string(op, cond, sizeof(cond));
+    cond = get_condition_string(op);
     
     coproc_num = get_coproc_num(op);
     coproc_info = get_coproc_info(op);

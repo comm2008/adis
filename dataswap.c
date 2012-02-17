@@ -35,10 +35,10 @@ static inline uint8_t get_base_register(uint32_t op) {
 
 void data_swap_instr(uint32_t op) {
 
-    char cond[4];
+    char *cond;
     uint8_t r_dest, r_src, r_base;
 
-    get_condition_string(op, cond, sizeof(cond));
+    cond = get_condition_string(op);
 
     r_dest = get_destination_register(op);
     r_src = get_source_register(op);

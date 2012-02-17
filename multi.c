@@ -67,10 +67,10 @@ static char *get_operation_string(uint32_t op) {
 
 void multi_instr(uint32_t op) {
 
-    char cond[4], *setcond;
+    char *cond, *setcond;
     uint8_t r_first, r_second, r_dest;
 
-    get_condition_string(op, cond, sizeof(cond));
+    cond = get_condition_string(op);
     r_dest = get_destination_register(op);
     r_first = get_first_operand_register(op);
     r_second = get_second_operand_register(op);
@@ -95,7 +95,7 @@ void multi_instr(uint32_t op) {
 
 void long_multi_instr(uint32_t op) {
 
-    char cond[4], *opstr, *setcond;
+    char *cond, *opstr, *setcond;
     uint8_t r_desthi, r_destlo, r_first, r_second;
 
     r_first = get_first_operand_register(op);
@@ -104,7 +104,7 @@ void long_multi_instr(uint32_t op) {
     r_desthi = get_destination_hiregister(op);
     r_destlo = get_destination_loregister(op);
     
-    get_condition_string(op, cond, sizeof(cond));
+    cond = get_condition_string(op);
     opstr = get_operation_string(op);
     
     if (op & 0x00100000) {

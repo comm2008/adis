@@ -23,9 +23,9 @@
 
 void branch_instr(uint32_t op) {
 
-    char cond[4];
+    char *cond;
 
-    get_condition_string(op, cond, sizeof(cond));
+    cond = get_condition_string(op);
 
     if (op & 0x01000000) {
         printf("BL%s =0x%.8X\n", cond, op & 0x00FFFFFF);

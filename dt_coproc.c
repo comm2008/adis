@@ -36,11 +36,10 @@ static inline uint8_t get_srcdest_register(uint32_t op) {
 
 void dt_coproc_instr(uint32_t op) {
 
-    char cond[4], addr[32];
-    char *long_bit;
+    char addr[32], *long_bit, *cond;
     uint8_t coproc_num, r_srcdest;
 
-    get_condition_string(op, cond, sizeof(cond));
+    cond = get_condition_string(op);
     get_addr_string(op, get_base_register(op), addr, sizeof(addr));
 
     coproc_num = get_coproc_num(op);
