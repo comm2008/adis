@@ -24,18 +24,15 @@
 
 #define ADIS_INIT_ALLOC 16
 
-static inline uint8_t get_base_register(uint32_t op) {
-    return (uint8_t)((op & 0x000F0000) >> 16);
-}
+#define ADIS_PSR_BIT(_op)       (_op & 0x00400000)
 
 static void get_addr_mode_string(uint32_t op, char *buffer, size_t bsize) {
  
-    uint32_t pre = op & 0x01000000, up = op & 0x00800000;
-    if (pre && up) {
+    if (ADIS_PREINDEX_BIT(op) && ADIS_ADDOFFSET_BIT(op)) {
         snprintf(buffer, ADIS_MIN(bsize, sizeof("xx")), "IB");
-    } else if (pre && !up) {
+    } else if (ADIS_PREINDEX_BIT(op) && !ADIS_ADDOFFSET_BIT(op)) {
         snprintf(buffer, ADIS_MIN(bsize, sizeof("xx")), "DB");
-    } else if (!pre && up) {
+    } else if (!ADIS_PREINDEX_BIT(op) && ADIS_ADDOFFSET_BIT(op)) {
         snprintf(buffer, ADIS_MIN(bsize, sizeof("xx")), "IA");
     } else {
         snprintf(buffer, ADIS_MIN(bsize, sizeof("xx")), "DA");
@@ -87,37 +84,32 @@ static void get_register_list_string(uint32_t op, char **buffer) {
 void dt_block_instr(uint32_t op) {
 
     char  addr_mode[4], *cond, *psr, *wb, *r_list = NULL;
-    uint8_t r_base;
 
-    
     get_register_list_string(op, &r_list);
-    
     if (r_list == NULL) {
         return;
     }
 
-    r_base = get_base_register(op);
-    
     cond = get_condition_string(op);
     get_addr_mode_string(op, addr_mode, sizeof(addr_mode));
 
-    if (op & 0x00400000) {
+    if (ADIS_PSR_BIT(op)) {
         psr = "^";
     } else {
         psr = "";
     }
 
-    if (op & 0x00200000) {
+    if (ADIS_WRITE_BIT(op)) {
         wb = "!";
     } else {
         wb = "";
     }
 
-    if (op & 0x00100000) {
-        printf("LDR%s%s R%d%s,%s%s\n", cond, addr_mode, r_base, wb,
+    if (ADIS_LOAD_BIT(op)) {
+        printf("LDR%s%s R%d%s,%s%s\n", cond, addr_mode, ADIS_RN(op), wb,
             r_list, psr);
     } else {
-        printf("STM%s%s R%d%s,%s%s\n", cond, addr_mode, r_base, wb,
+        printf("STM%s%s R%d%s,%s%s\n", cond, addr_mode, ADIS_RN(op), wb,
             r_list, psr);
     }
 

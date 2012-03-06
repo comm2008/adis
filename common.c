@@ -21,21 +21,25 @@
 
 #include "common.h"
 
+#define ADIS_COND(_op)          ((_op & 0xF0000000) >> 28)
+
+#define ADIS_IMMOP_BIT(_op)     (_op & 0x02000000)
+
 void get_offset_string(uint32_t op, char *buffer, size_t bsize, uint8_t dp) {
 
     uint32_t shift;
 
-    if (op & 0x02000000) {
+    if (ADIS_IMMOP_BIT(op)) {
         // shift + register
-        uint32_t reg = op & 0x0000000F;
+        uint32_t reg = ADIS_RM(op);
         shift = (op & 0x00000FF0) >> 4;
 
         // dataproc instruction doesn't have +/-
         if (dp) {
             snprintf(buffer, ADIS_MIN(bsize, sizeof("Rxx")), "R%d", reg);
         } else {
-            snprintf(buffer, ADIS_MIN(bsize, sizeof("xRxx")), "%sR%d", 
-                op & 0x00800000 ? "+" : "-", reg);
+            snprintf(buffer, ADIS_MIN(bsize, sizeof("xRxx")), "%sR%d",
+                ADIS_ADDOFFSET_BIT(op) ? "+" : "-", reg);
         }
 
         if (reg < 10) {
@@ -54,7 +58,7 @@ void get_offset_string(uint32_t op, char *buffer, size_t bsize, uint8_t dp) {
         } else if (dp) {
             snprintf(buffer, ADIS_MIN(bsize, sizeof("#xxx")), "#%d", imm);
         } else {
-            snprintf(buffer, ADIS_MIN(bsize, sizeof("=0xFFF")), 
+            snprintf(buffer, ADIS_MIN(bsize, sizeof("=0xFFF")),
                 "=0x%.3X", imm);
         }
     }
@@ -63,7 +67,7 @@ void get_offset_string(uint32_t op, char *buffer, size_t bsize, uint8_t dp) {
 char *get_condition_string(uint32_t op) {
 
     char *tmp;
-    uint32_t cond = (op & 0xF0000000) >> 28;
+    uint32_t cond = ADIS_COND(op);
 
     switch(cond) {
         case 0x00:
@@ -197,9 +201,9 @@ void get_addr_string(uint32_t op, uint8_t r_base, char *buffer, size_t bsize) {
     get_offset_string(op, offset, sizeof(offset), 0);
 
     // pre-indexed
-    if (op & 0x01000000) {
+    if (ADIS_PREINDEX_BIT(op)) {
         snprintf(buffer, ADIS_MIN(bsize, sizeof(r_base) + sizeof(offset) + 6),
-            "[R%d,%s]%s", r_base, offset, op & 0x00200000 ? "!" : "");
+            "[R%d,%s]%s", r_base, offset, ADIS_WRITE_BIT(op) ? "!" : "");
     } else {
         snprintf(buffer, ADIS_MIN(bsize, sizeof(r_base) + sizeof(offset) + 5),
             "[R%d],%s", r_base, offset);

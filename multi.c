@@ -21,42 +21,32 @@
 #include "multi.h"
 #include "common.h"
 
-// This is the exact same as get_destination_register
-// I'll be changing this once I move to common functions
-// or macros for retrieving register numbers
-static inline uint8_t get_destination_hiregister(uint32_t op) {
-    return (uint8_t)((op & 0x000F0000) >> 16);
-}
+// For some reason, these two registers are reversed
+// in this instruction
+#undef ADIS_RD
+#undef ADIS_RN
 
-static inline uint8_t get_destination_loregister(uint32_t op) {
-    return (uint8_t)((op & 0x0000F000) >> 12);
-}
+#define ADIS_RD(_op)    ((_op & 0x000F0000) >> 16)
+#define ADIS_RN(_op)    ((_op & 0x0000F000) >> 12)
+#define ADIS_RS(_op)    ((_op & 0x00000F00) >> 8)
 
-static inline uint8_t get_destination_register(uint32_t op) {
-    return (uint8_t)((op & 0x000F0000) >> 16);
-}
+// Same as ADIS_RD and ADIS_RN, just different names
+// for long multiplication
+#define ADIS_RDHI(_op)          ((_op & 0x000F0000) >> 16)
+#define ADIS_RDLO(_op)          ((_op & 0x0000F000) >> 12)
 
-static inline uint8_t get_first_operand_register(uint32_t op) {
-    return (uint8_t)(op & 0x0000000F);
-}
-
-static inline uint8_t get_second_operand_register(uint32_t op) {
-    return (uint8_t)((op & 0x0000F00) >> 8);
-}
-
-static inline uint8_t get_third_operand_register(uint32_t op) {
-    return (uint8_t)((op & 0x0000F000) >> 12);
-}
+#define ADIS_ACCUM_BIT(_op)     (_op & 0x00200000)
+#define ADIS_SIGNED_BIT(_op)    (_op & 0x00400000)
 
 static char *get_operation_string(uint32_t op) {
 
     char *ret;
 
-    if ((op & 0x00800000) && (op & 0x00400000)) {
+    if (ADIS_SIGNED_BIT(op) && ADIS_ACCUM_BIT(op)) {
         ret = "UMLAL";
-    } else if ((op & 0x00800000) && !(op & 0x00400000)) {
+    } else if (ADIS_SIGNED_BIT(op) && !ADIS_ACCUM_BIT(op)) {
         ret = "UMULL";
-    } else if (!(op & 0x00800000) && (op & 0x00400000)) {
+    } else if (!ADIS_SIGNED_BIT(op) && ADIS_ACCUM_BIT(op)) {
         ret = "SMLAL";
     } else {
         ret = "SMULL";
@@ -68,51 +58,37 @@ static char *get_operation_string(uint32_t op) {
 void multi_instr(uint32_t op) {
 
     char *cond, *setcond;
-    uint8_t r_first, r_second, r_dest;
-
     cond = get_condition_string(op);
-    r_dest = get_destination_register(op);
-    r_first = get_first_operand_register(op);
-    r_second = get_second_operand_register(op);
 
-    if (op & 0x00100000) {
+    if (ADIS_SETCOND_BIT(op)) {
         setcond = "S";
     } else {
         setcond = "";
     }
 
-    if (op & 0x00200000) {
+    if (ADIS_ACCUM_BIT(op)) {
         // multiply and accumulate
-        uint8_t r_third = get_third_operand_register(op);
-
-        printf("MLA%s%s R%d,R%d,R%d,R%d\n", cond, setcond, r_dest, 
-            r_first, r_second, r_third);
+        printf("MLA%s%s R%d,R%d,R%d,R%d\n", cond, setcond, ADIS_RD(op), 
+            ADIS_RM(op), ADIS_RS(op), ADIS_RN(op));
     } else {
-        printf("MUL%s%s R%d,R%d,R%d\n", cond, setcond, r_dest,
-            r_first, r_second);
+        printf("MUL%s%s R%d,R%d,R%d\n", cond, setcond, ADIS_RD(op),
+            ADIS_RM(op), ADIS_RS(op));
     }
 }
 
 void long_multi_instr(uint32_t op) {
 
     char *cond, *opstr, *setcond;
-    uint8_t r_desthi, r_destlo, r_first, r_second;
 
-    r_first = get_first_operand_register(op);
-    r_second = get_second_operand_register(op);
-
-    r_desthi = get_destination_hiregister(op);
-    r_destlo = get_destination_loregister(op);
-    
     cond = get_condition_string(op);
     opstr = get_operation_string(op);
     
-    if (op & 0x00100000) {
+    if (ADIS_SETCOND_BIT(op)) {
         setcond = "S";
     } else {
         setcond = "";
     }
 
-    printf("%s%s%s R%d,R%d,R%d,R%d\n", opstr, cond, setcond,
-        r_destlo, r_desthi, r_first, r_second);
+    printf("%s%s%s R%d,R%d,R%d,R%d\n", opstr, cond, setcond, ADIS_RDLO(op),
+        ADIS_RDHI(op), ADIS_RM(op), ADIS_RS(op));
 }

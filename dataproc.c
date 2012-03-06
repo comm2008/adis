@@ -22,6 +22,10 @@
 #include "dataproc.h"
 #include "common.h"
 
+#define ADIS_OPCODE(_op)        ((_op & 0x01E00000) >> 21)
+
+#define ADIS_SPSR_BIT(_op)      (_op & 0x00400000)
+
 typedef enum _PSRFlag {
     PSRFlagNone,
     PSRFlagBits
@@ -40,23 +44,19 @@ static inline int is_msr_flg(uint32_t op) {
 }
 
 static inline int is_single_op(uint32_t op) {
-
-    int opcode = (op & 0x01E00000) >> 21;
-
+    int opcode = ADIS_OPCODE(op);
     return (opcode == 0x1101) || (opcode == 0x1111);
 }
 
 static inline int is_no_result(uint32_t op) {
-    
-    int opcode = (op & 0x01E00000) >> 21;
-
+    int opcode = ADIS_OPCODE(op);
     return (opcode >= 0x1000) && (opcode <= 0x1011);
 }
 
 static void get_op_string(uint32_t op, char *buffer, size_t bsize) {
 
     char *tmp;
-    uint32_t opcode = (op & 0x01E00000) >> 21;
+    uint32_t opcode = ADIS_OPCODE(op);
 
     switch(opcode) {
         case 0x00:
@@ -128,45 +128,30 @@ static void get_op_string(uint32_t op, char *buffer, size_t bsize) {
     memcpy(buffer, tmp, ADIS_MIN(bsize, sizeof(tmp)));
 }
 
-static inline uint8_t get_destination_register(uint32_t op) {
-    return (uint8_t)((op & 0x0000F000) >> 12);
-}
-
-static inline uint8_t get_first_operand_register(uint32_t op) {
-     return (uint8_t)((op & 0x000F0000) >> 16);
-}
-
 static void data_proc_instr(uint32_t op) {
 
     char opstr[4], offset[16], *cond, *setcond;
     
-    get_op_string(op, opstr, sizeof(opstr));
     cond = get_condition_string(op);
+    get_op_string(op, opstr, sizeof(opstr));
     get_offset_string(op, offset, sizeof(offset), 1);
 
     if (is_no_result(op)) {
-        uint8_t r_first = get_first_operand_register(op);
-       
-        printf("%s%s R%d,%s\n", opstr, cond, r_first, offset);
+        printf("%s%s R%d,%s\n", opstr, cond, ADIS_RN(op), offset);
     } else {
-        uint8_t r_dest;
         // check if condition code flag is set
-        if (op & 0x00100000) {
+        if (ADIS_SETCOND_BIT(op)) {
             setcond = "S";
         } else {
             setcond = "";
         }
 
-        r_dest = get_destination_register(op);
-
         if (is_single_op(op)) {
             printf("%s%s%s R%d,%s\n", opstr, cond, setcond, 
-                r_dest, offset);
+                ADIS_RD(op), offset);
         } else {
-            uint8_t r_first;
-            r_first = get_first_operand_register(op);
             printf("%s%s%s R%d,R%d,%s\n", opstr, cond, setcond,
-                r_dest, r_first, offset);
+                ADIS_RD(op), ADIS_RN(op), offset);
         }
     }
 }
@@ -174,19 +159,16 @@ static void data_proc_instr(uint32_t op) {
 static void mrs_instr(uint32_t op) {
     
     char *cond, *psr;
-    uint8_t r_dest;
-
     cond = get_condition_string(op);
-    r_dest = get_destination_register(op);
 
-    if (op & 0x00400000) {
+    if (ADIS_SPSR_BIT(op)) {
         // source PSR = SPSR_<currentmode>
         psr = "SPSR";
     } else {
         psr = "CPSR";
     }
 
-    printf("MRS%s R%d,%s\n", cond, r_dest, psr);
+    printf("MRS%s R%d,%s\n", cond, ADIS_RD(op), psr);
 }
 
 static void msr_instr(uint32_t op, PSRFlag flg) {
@@ -196,7 +178,7 @@ static void msr_instr(uint32_t op, PSRFlag flg) {
     cond = get_condition_string(op);
     get_offset_string(op, offset, sizeof(offset), 1);
 
-    if (op & 0x00400000) {
+    if (ADIS_SPSR_BIT(op)) {
         // destination psr = SPSR_<currentmode>
         if (flg == PSRFlagBits) {
             psr = "SPSR_flg";

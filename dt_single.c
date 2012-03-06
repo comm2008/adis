@@ -21,35 +21,24 @@
 #include "dt_single.h"
 #include "common.h"
 
-static inline uint8_t get_base_register(uint32_t op) {
-    return (uint8_t)((op & 0x000F0000) >> 16);
-}
-
-static inline uint8_t get_srcdest_register(uint32_t op) {
-    return (uint8_t)((op & 0x0000F000) >> 12);
-}
-
 void dt_single_instr(uint32_t op) {
 
     char addr[32], *cond, *tsize;
-    uint8_t r_srcdest;
-
-    r_srcdest = get_srcdest_register(op);
 
     cond = get_condition_string(op);
-    get_addr_string(op, get_base_register(op), addr, sizeof(addr));
+    get_addr_string(op, ADIS_RN(op), addr, sizeof(addr));
 
     // byte / word
-    if (op & 0x00400000) {
+    if (ADIS_BYTE_BIT(op)) {
         tsize = "B";
     } else {
         tsize = "";
     }
 
     // load / store
-    if (op & 0x00100000) {
-        printf("LDR%s%s R%d,%s\n", cond, tsize, r_srcdest, addr);
+    if (ADIS_LOAD_BIT(op)) {
+        printf("LDR%s%s R%d,%s\n", cond, tsize, ADIS_RD(op), addr);
     } else {
-        printf("STR%s%s R%d,%s\n", cond, tsize, r_srcdest, addr);
+        printf("STR%s%s R%d,%s\n", cond, tsize, ADIS_RD(op), addr);
     }
 }

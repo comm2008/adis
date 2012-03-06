@@ -22,50 +22,21 @@
 #include "dataop_coproc.h"
 #include "common.h"
 
-static inline uint8_t get_opcode(uint32_t op) {
-    return (uint8_t)((op & 0x00F00000) >> 20);
-}
-
-static inline uint8_t get_first_operand_register(uint32_t op) {
-    return (uint8_t)((op & 0x000F0000) >> 16);
-}
-
-static inline uint8_t get_second_operand_register(uint32_t op) {
-    return (uint8_t)(op & 0x0000000F);
-}
-
-static inline uint8_t get_destination_register(uint32_t op) {
-    return (uint8_t)((op & 0x0000F000) >> 12);
-}
-
-static inline uint8_t get_coproc_num(uint32_t op) {
-    return (uint8_t)((op & 0x00000F00) >> 8);
-}
-
-static inline uint8_t get_coproc_info(uint32_t op) {
-    return (uint8_t)((op & 0x000000E0) >> 4);
-}
+#define ADIS_OPCODE(_op)        ((_op & 0x00F00000) >> 20)
 
 void dataop_coproc_instr(uint32_t op) {
-    uint8_t opcode, r_op1, r_op2, r_dest, coproc_num, coproc_info;
+    uint8_t coproc_info;
     char *cond;
 
     cond = get_condition_string(op);
-
-    opcode = get_opcode(op);
-
-    r_op1 = get_first_operand_register(op);
-    r_op2 = get_second_operand_register(op);
-    r_dest = get_destination_register(op);
-
-    coproc_num = get_coproc_num(op);
-    coproc_info = get_coproc_info(op);
+    coproc_info = ADIS_CPINFO(op);
 
     if (coproc_info > 0) {
-        printf("CDP%s p%d,%d,c%d,c%d,c%d\n", cond, coproc_num,
-            opcode, r_dest, r_op1, r_op2);
+        printf("CDP%s p%d,%d,c%d,c%d,c%d\n", cond, ADIS_CPNUM(op),
+            ADIS_OPCODE(op), ADIS_RD(op), ADIS_RN(op), ADIS_RM(op));
     } else {
-        printf("CDP%s, p%d,%d,c%d,c%d,c%d,%d\n", cond, coproc_num,
-            opcode, r_dest, r_op1, r_op2, coproc_info);
+        printf("CDP%s, p%d,%d,c%d,c%d,c%d,%d\n", cond, ADIS_CPNUM(op),
+            ADIS_OPCODE(op), ADIS_RD(op), ADIS_RN(op), 
+            ADIS_RM(op), coproc_info);
     }
 }

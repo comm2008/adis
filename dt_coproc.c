@@ -22,42 +22,28 @@
 #include "dt_coproc.h"
 #include "common.h"
 
-static inline uint8_t get_coproc_num(uint32_t op) {
-    return (uint8_t)((op & 0x00000F00) >> 8);
-}
-
-static inline uint8_t get_base_register(uint32_t op) {
-    return (uint8_t)((op & 0x000F0000) >> 16);
-}
-
-static inline uint8_t get_srcdest_register(uint32_t op) {
-    return (uint8_t)((op & 0x0000F000) >> 12);
-}
+#define ADIS_LONG_BIT(_op)      (_op & 0x00400000)
 
 void dt_coproc_instr(uint32_t op) {
 
     char addr[32], *long_bit, *cond;
-    uint8_t coproc_num, r_srcdest;
 
     cond = get_condition_string(op);
-    get_addr_string(op, get_base_register(op), addr, sizeof(addr));
-
-    coproc_num = get_coproc_num(op);
-    r_srcdest = get_srcdest_register(op);
+    get_addr_string(op, ADIS_RN(op), addr, sizeof(addr));
 
     // long bit set?
-    if (op & 0x00400000) {
+    if (ADIS_LONG_BIT(op)) {
         long_bit = "L";
     } else {
         long_bit = "";
     }
 
     // load / store
-    if (op & 0x00100000) {
+    if (ADIS_LOAD_BIT(op)) {
         printf("LDC%s%s p%d,c%d,%s\n", cond, long_bit,
-            coproc_num, r_srcdest, addr);
+            ADIS_CPNUM(op), ADIS_RD(op), addr);
     } else {
         printf("STC%s%s p%d,c%d,%s\n", cond, long_bit,
-            coproc_num, r_srcdest, addr);
+            ADIS_CPNUM(op), ADIS_RD(op), addr);
     }
 }

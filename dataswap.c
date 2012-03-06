@@ -21,35 +21,19 @@
 #include "dataswap.h"
 #include "common.h"
 
-static inline uint8_t get_destination_register(uint32_t op) {
-    return (uint8_t)((op & 0x0000F000) >> 12);
-}
-
-static inline uint8_t get_source_register(uint32_t op) {
-    return (uint8_t)(op & 0x0000000F);
-}
-
-static inline uint8_t get_base_register(uint32_t op) {
-    return (uint8_t)((op & 0x000F0000) >> 16);
-}
-
 void data_swap_instr(uint32_t op) {
 
     char *cond;
-    uint8_t r_dest, r_src, r_base;
-
     cond = get_condition_string(op);
 
-    r_dest = get_destination_register(op);
-    r_src = get_source_register(op);
-    r_base = get_base_register(op);
-
-    if (op & 0x00400000) {
+    if (ADIS_BYTE_BIT(op)) {
         // swap byte
-        printf("SWP%sB R%d,R%d,[R%d]\n", cond, r_dest, r_src, r_base);
+        printf("SWP%sB R%d,R%d,[R%d]\n", cond, ADIS_RD(op), ADIS_RM(op),
+            ADIS_RN(op));
     } else {
         // swap word
-        printf("SWP%s R%d,R%d,[R%d]\n", cond, r_dest, r_src, r_base);
+        printf("SWP%s R%d,R%d,[R%d]\n", cond, ADIS_RD(op), ADIS_RM(op),
+            ADIS_RN(op));
     }
 }
 

@@ -21,13 +21,15 @@
 #include "branch.h"
 #include "common.h"
 
+#define ADIS_LINK_BIT(_op)   (_op & 0x01000000)
+
 void branch_instr(uint32_t op) {
 
     char *cond;
 
     cond = get_condition_string(op);
 
-    if (op & 0x01000000) {
+    if (ADIS_LINK_BIT(op)) {
         printf("BL%s =0x%.8X\n", cond, op & 0x00FFFFFF);
     } else {
         printf("B%s =0x%.8X\n", cond, op & 0x00FFFFFF);

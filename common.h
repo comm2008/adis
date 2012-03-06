@@ -21,8 +21,22 @@
 
 #include <stdint.h>
 
-#define ADIS_MAX(op1, op2) ((op1 < op2) ? op2 : op1)
-#define ADIS_MIN(op1, op2) ((op1 < op2) ? op1 : op2)
+#define ADIS_MAX(_op1, _op2)        ((_op1 < _op2) ? _op2 : _op1)
+#define ADIS_MIN(_op1, _op2)        ((_op1 < _op2) ? _op1 : _op2)
+
+#define ADIS_RN(_op)                ((_op & 0x000F0000) >> 16)
+#define ADIS_RD(_op)                ((_op & 0x0000F000) >> 12)
+#define ADIS_RM(_op)                ((_op & 0x0000000F))
+
+#define ADIS_CPNUM(_op)             ((_op & 0x00000F00) >> 8)
+#define ADIS_CPINFO(_op)            ((_op & 0x00000E00) >> 5)
+
+#define ADIS_LOAD_BIT(_op)          (_op & 0x00100000)
+#define ADIS_SETCOND_BIT(_op)       (_op & 0x00100000)
+#define ADIS_WRITE_BIT(_op)         (_op & 0x00200000)
+#define ADIS_BYTE_BIT(_op)          (_op & 0x00400000)
+#define ADIS_ADDOFFSET_BIT(_op)     (_op & 0x00800000)
+#define ADIS_PREINDEX_BIT(_op)      (_op & 0x01000000)
 
 #define MAX_INSTR_LENGTH 64
 
