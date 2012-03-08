@@ -54,7 +54,7 @@ static int readop(/*out */ uint32_t * op) {
 
 int main(int argc, char* argv[]) {
 
-    uint32_t op;
+    uint32_t op = 0;
     uint32_t count = 0;
 
     while (readop(&op)) {
