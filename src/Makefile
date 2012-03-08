@@ -1,7 +1,6 @@
-# makefile for adis
+# Makefile for adis
+include ../Makefile.inc
 
-CC = gcc
-CFLAGS = -g -Wall
 OBJECTS = common.o dataproc.o multi.o dataswap.o branch.o dt_block.o dt_single.o \
           dt_coproc.o rt_coproc.o dataop_coproc.o sw_interrupt.o main.o
 
