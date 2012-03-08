@@ -4,8 +4,7 @@ include ../Makefile.inc
 OBJECTS = common.o dataproc.o multi.o dataswap.o branch.o dt_block.o dt_single.o \
           dt_coproc.o rt_coproc.o dataop_coproc.o sw_interrupt.o main.o
 
-EXEC = adis
-
+.PHONY: all
 all : ${EXEC}
 
 ${EXEC} : ${OBJECTS}
@@ -37,5 +36,6 @@ main.o : dataproc.c multi.c dataswap.c branch.c dt_single.c \
          dt_block.c dt_coproc.c rt_coproc.c dataop_coproc.c \
          sw_interrupt.c main.c
 
+.PHONY: clean
 clean:
 	rm ${EXEC} ${OBJECTS}

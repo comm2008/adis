@@ -8,16 +8,14 @@ CLEANDIRS = $(SUBDIRS:%=clean-%)
 # source directory, but may be necessary later if more than one
 # directory with source files exists
 
+.PHONY: all $(BUILDDIRS)
 all: $(BUILDDIRS)
 
 $(BUILDDIRS):
 	$(MAKE) -C $(@:build-%=%)
 
+.PHONY: clean $(CLEANDIRS)
 clean: $(CLEANDIRS)
 
 $(CLEANDIRS):
 	$(MAKE) -C $(@:clean-%=%) clean
-
-.PHONY: subdirs $(SUBDIRS)
-.PHONY: subdirs $(BUILDDIRS)
-.PHONY: subdirs $(CLEANDirS)
