@@ -66,7 +66,7 @@ void get_offset_string(uint32_t op, char *buffer, size_t bsize, uint8_t dp) {
 
 char *get_condition_string(uint32_t op) {
 
-    char *tmp;
+    char *tmp = NULL;
     uint32_t cond = ADIS_COND(op);
 
     switch(cond) {
