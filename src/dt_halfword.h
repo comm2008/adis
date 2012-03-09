@@ -16,35 +16,11 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include <stdio.h>
-#include <stdlib.h>
+#ifndef __ADIS_DT_HALFWORD_H__
+#define __ADIS_DT_HALFWORD_H__
 
-#include "dt_coproc.h"
-#include "common.h"
+#include <stdint.h>
 
-#define ADIS_LONG_BIT(_op)      (_op & 0x00400000)
+void dt_halfword_instr(uint32_t op);
 
-void dt_coproc_instr(uint32_t op) {
-
-    char addr[32], offset[16], *long_bit, *cond;
-
-    cond = get_condition_string(op);
-    get_offset_string(op, offset, sizeof(offset), 0);
-    get_addr_string(op, ADIS_RN(op), offset, addr, sizeof(addr));
-
-    // long bit set?
-    if (ADIS_LONG_BIT(op)) {
-        long_bit = "L";
-    } else {
-        long_bit = "";
-    }
-
-    // load / store
-    if (ADIS_LOAD_BIT(op)) {
-        printf("LDC%s%s p%d,c%d,%s\n", cond, long_bit,
-            ADIS_CPNUM(op), ADIS_RD(op), addr);
-    } else {
-        printf("STC%s%s p%d,c%d,%s\n", cond, long_bit,
-            ADIS_CPNUM(op), ADIS_RD(op), addr);
-    }
-}
+#endif  // __ADIS_DT_HALFWORD_H__

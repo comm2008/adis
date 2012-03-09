@@ -23,10 +23,11 @@
 
 void dt_single_instr(uint32_t op) {
 
-    char addr[32], *cond, *tsize;
+    char addr[32], offset[16], *cond, *tsize;
 
     cond = get_condition_string(op);
-    get_addr_string(op, ADIS_RN(op), addr, sizeof(addr));
+    get_offset_string(op, offset, sizeof(offset), 0);
+    get_addr_string(op, ADIS_RN(op), offset, addr, sizeof(addr));
 
     // byte / word
     if (ADIS_BYTE_BIT(op)) {

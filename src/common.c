@@ -23,8 +23,6 @@
 
 #define ADIS_COND(_op)          ((_op & 0xF0000000) >> 28)
 
-#define ADIS_IMMOP_BIT(_op)     (_op & 0x02000000)
-
 void get_offset_string(uint32_t op, char *buffer, size_t bsize, uint8_t dp) {
 
     uint32_t shift;
@@ -194,18 +192,25 @@ void get_shift_string(uint32_t shift, char *buffer, size_t bsize) {
     }
 }
 
-void get_addr_string(uint32_t op, uint8_t r_base, char *buffer, size_t bsize) {
+/*
+ * Awful variable names because I didn't want the definition to go
+ * over 80 characters:
+ *
+ *      r_bs -> base register
+ *      offst -> offset string
+ *      bfr -> buffer
+ *      bsz -> buffer size
+ */
 
-    char offset[16];
-
-    get_offset_string(op, offset, sizeof(offset), 0);
+void
+get_addr_string(uint32_t op, uint8_t r_bs, char *offst, char *bfr, size_t bsz) {
 
     // pre-indexed
     if (ADIS_PREINDEX_BIT(op)) {
-        snprintf(buffer, ADIS_MIN(bsize, sizeof(r_base) + sizeof(offset) + 6),
-            "[R%d,%s]%s", r_base, offset, ADIS_WRITE_BIT(op) ? "!" : "");
+        snprintf(bfr, ADIS_MIN(bsz, sizeof(r_bs) + sizeof(offst) + 6),
+            "[R%d,%s]%s", r_bs, offst, ADIS_WRITE_BIT(op) ? "!" : "");
     } else {
-        snprintf(buffer, ADIS_MIN(bsize, sizeof(r_base) + sizeof(offset) + 5),
-            "[R%d],%s", r_base, offset);
+        snprintf(bfr, ADIS_MIN(bsz, sizeof(r_bs) + sizeof(offst) + 5),
+            "[R%d],%s", r_bs, offst);
     }
 }

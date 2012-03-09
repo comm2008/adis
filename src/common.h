@@ -37,12 +37,15 @@
 #define ADIS_BYTE_BIT(_op)          (_op & 0x00400000)
 #define ADIS_ADDOFFSET_BIT(_op)     (_op & 0x00800000)
 #define ADIS_PREINDEX_BIT(_op)      (_op & 0x01000000)
+#define ADIS_IMMOP_BIT(_op)         (_op & 0x02000000)
 
 #define MAX_INSTR_LENGTH 64
 
 void get_offset_string(uint32_t op, char *buffer, size_t bsize, uint8_t dp);
 char *get_condition_string(uint32_t op);
 void get_shift_string(uint32_t shift, char *buffer, size_t bsize);
-void get_addr_string(uint32_t op, uint8_t r_base, char *buffer, size_t bsize);
+
+void
+get_addr_string(uint32_t op, uint8_t r_bs, char *offst, char *bfr, size_t bsz);
 
 #endif  // __ADIS_COMMON_H__
