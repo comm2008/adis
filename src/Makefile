@@ -40,4 +40,5 @@ main.o : dataproc.c multi.c dataswap.c branch.c dt_single.c \
 
 .PHONY: clean
 clean:
-	rm ${EXEC} ${OBJECTS}
+	@rm -f ${EXEC} ${OBJECTS}
+
