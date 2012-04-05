@@ -37,8 +37,13 @@
 
 #define ADIS_ACCUM_BIT(_op)     (_op & 0x00200000)
 #define ADIS_SIGNED_BIT(_op)    (_op & 0x00400000)
+#define ADIS_LONG_BIT(_op)      (_op & 0x00800000)
 
-static char *get_operation_string(uint32_t op) {
+static int is_mls_instr(uint32_t op) {
+    return !((op & 0x00F00000) ^ 0x00600000);
+}
+
+static char *get_long_multi_operation_string(uint32_t op) {
 
     char *ret;
 
@@ -55,11 +60,40 @@ static char *get_operation_string(uint32_t op) {
     return ret;
 }
 
+static void long_multi_instr(uint32_t op) {
+
+    char *cond, *opstr, *setcond;
+
+    cond = get_condition_string(op);
+    opstr = get_long_multi_operation_string(op);
+    
+    if (ADIS_SETCOND_BIT(op)) {
+        setcond = "S";
+    } else {
+        setcond = "";
+    }
+
+    printf("%s%s%s R%d,R%d,R%d,R%d\n", opstr, cond, setcond, ADIS_RDLO(op),
+        ADIS_RDHI(op), ADIS_RM(op), ADIS_RS(op));
+}
+
 void multi_instr(uint32_t op) {
 
     char *cond, *setcond;
     cond = get_condition_string(op);
 
+    if (is_mls_instr(op)) {
+        // We can process this immediately without checking other bits
+        printf("MLS%s R%d,R%d,R%d,R%d\n", cond, ADIS_RD(op), ADIS_RN(op),
+            ADIS_RS(op), ADIS_RM(op));
+        return;
+    } else if (ADIS_LONG_BIT(op)) {
+        // long multiplication instruction
+        long_multi_instr(op);
+        return;
+    }
+
+    // If we get here, this is just a regular multiplication instruction
     if (ADIS_SETCOND_BIT(op)) {
         setcond = "S";
     } else {
@@ -74,21 +108,4 @@ void multi_instr(uint32_t op) {
         printf("MUL%s%s R%d,R%d,R%d\n", cond, setcond, ADIS_RD(op),
             ADIS_RM(op), ADIS_RS(op));
     }
-}
-
-void long_multi_instr(uint32_t op) {
-
-    char *cond, *opstr, *setcond;
-
-    cond = get_condition_string(op);
-    opstr = get_operation_string(op);
-    
-    if (ADIS_SETCOND_BIT(op)) {
-        setcond = "S";
-    } else {
-        setcond = "";
-    }
-
-    printf("%s%s%s R%d,R%d,R%d,R%d\n", opstr, cond, setcond, ADIS_RDLO(op),
-        ADIS_RDHI(op), ADIS_RM(op), ADIS_RS(op));
 }

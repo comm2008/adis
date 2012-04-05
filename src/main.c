@@ -65,8 +65,6 @@ int main(int argc, char* argv[]) {
             data_swap_instr(op);
         } else if (is_multi(op)) {
             multi_instr(op);
-        } else if (is_long_multi(op)) {
-            long_multi_instr(op);
         } else if (is_dp_psr(op)) {
             dp_psr_instr(op);
         } else if (is_branch(op)) {

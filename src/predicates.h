@@ -28,11 +28,7 @@ static inline int is_data_swap(uint32_t op) {
 
 // multiplication operation
 static inline int is_multi(uint32_t op) {
-    return !((op & 0x0FC00050) ^ 0x00000050);
-}
-
-static inline int is_long_multi(uint32_t op) {
-    return !((op & 0x0FE00050) ^ 0x00800050);
+    return !((op & 0x0F0000F0) ^ 0x00000050);
 }
 
 // data processing or psr transfer
