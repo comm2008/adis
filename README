@@ -1,7 +1,7 @@
-adis - ARMv4T Disassembler
+adis - ARMv7 Disassembler
 *************************
 
-This is a simple ARMv4T disassembler written in C. ARMv4T binaries are 
+This is a simple ARMv7 disassembler written in C. ARMv7 binaries are 
 piped in to the executable through stdin, are then translated to
 ARM assembly through stdout. 
 
