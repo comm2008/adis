@@ -21,6 +21,7 @@
 
 #include "predicates.h"
 #include "dataproc.h"
+#include "satop.h"
 #include "multi.h"
 #include "dataswap.h"
 #include "branch.h"
@@ -67,6 +68,8 @@ int main(int argc, char* argv[]) {
             multi_instr(op);
         } else if (is_dp_psr(op)) {
             dp_psr_instr(op);
+        } else if (is_saturating_instr(op)) {
+            saturating_instr(op);
         } else if (is_branch(op)) {
             branch_instr(op);
         } else if (is_dt_single(op)) {

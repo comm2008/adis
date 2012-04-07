@@ -36,6 +36,11 @@ static inline int is_dp_psr(uint32_t op) {
     return !((op & 0x0C000000) ^ 0x00000000);
 }
 
+// saturating add / subtract
+static inline int is_saturating_instr(uint32_t op) {
+    return !((op & 0x0F9000F0) ^ 0x01000050);
+}
+
 // single data transfer
 static inline int is_dt_single(uint32_t op) {
     return !((op & 0x0C000000) ^ 0x04000000);
