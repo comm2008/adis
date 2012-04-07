@@ -43,7 +43,8 @@ static int is_mls_instr(uint32_t op) {
     return !((op & 0x00F00000) ^ 0x00600000);
 }
 
-static char *get_long_multi_operation_string(uint32_t op) {
+// Used for long multiplication instructions
+static char *get_operation_string(uint32_t op) {
 
     char *ret;
 
@@ -65,7 +66,7 @@ static void long_multi_instr(uint32_t op) {
     char *cond, *opstr, *setcond;
 
     cond = get_condition_string(op);
-    opstr = get_long_multi_operation_string(op);
+    opstr = get_operation_string(op);
     
     if (ADIS_SETCOND_BIT(op)) {
         setcond = "S";

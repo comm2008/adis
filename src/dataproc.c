@@ -53,7 +53,7 @@ static inline int is_no_result(uint32_t op) {
     return (opcode >= 0x1000) && (opcode <= 0x1011);
 }
 
-static void get_op_string(uint32_t op, char *buffer, size_t bsize) {
+static void get_operation_string(uint32_t op, char *buffer, size_t bsize) {
 
     char *tmp;
     uint32_t opcode = ADIS_OPCODE(op);
@@ -133,7 +133,7 @@ static void data_proc_instr(uint32_t op) {
     char opstr[4], offset[16], *cond, *setcond;
     
     cond = get_condition_string(op);
-    get_op_string(op, opstr, sizeof(opstr));
+    get_operation_string(op, opstr, sizeof(opstr));
     get_offset_string(op, offset, sizeof(offset), 1);
 
     if (is_no_result(op)) {
