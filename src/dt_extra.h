@@ -21,6 +21,6 @@
 
 #include <stdint.h>
 
-void dt_halfword_instr(uint32_t op);
+void dt_extra_instr(uint32_t op);
 
 #endif  // __ADIS_DT_HALFWORD_H__

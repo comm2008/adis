@@ -55,10 +55,9 @@ static inline int is_dt_block(uint32_t op) {
     return !((op & 0x0E000000) ^ 0x08000000);
 }
 
-// halfword data transfer
-// includes signed data transfers
-static inline int is_dt_halfword(uint32_t op) {
-    return !((op & 0x0E000F90) ^ 0x00000090);
+// halfword, signed, and dual data transfers
+static inline int is_dt_extra(uint32_t op) {
+    return !((op & 0x0E000090) ^ 0x00000090);
 }
 
 // branch

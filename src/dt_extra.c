@@ -19,20 +19,34 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "dt_halfword.h"
+#include "dt_extra.h"
 #include "dataswap.h"
 #include "common.h"
 
 #define ADIS_HW_BIT(_op)            (_op & 0x00000020)
 #define ADIS_SIGNED_BIT(_op)        (_op & 0x00000040)
 
-static void dthw_get_offset_string(uint32_t op, char *offset, size_t bsize) {
+static inline int is_dt_dual(op) {
+    return !((op & 0x00100040) ^ 0x00000040);
+}
+
+// Special offset calculating instruction used only by this instruction
+// family
+static void dtex_get_offset_string(uint32_t op, char *offset, size_t bsize) {
     snprintf(offset, ADIS_MIN(bsize, sizeof("=0xF")),
         ADIS_IMMOP_BIT(op) ? "=0x%.1X" : "R%d", ADIS_RM(op));
 }
 
-void dt_halfword_instr(uint32_t op) {
+void dt_extra_instr(uint32_t op) {
     char addr[32], offset[8], *subinstr, *cond;
+
+    // Special bit combination for dual instructions,
+    // other instructions are either signed, halfword,
+    // both, or neither (regular data swap)
+    if (is_dt_dual(op)) {
+        subinstr = "D";
+        goto have_subinstr;
+    }
 
     if (ADIS_HW_BIT(op) && ADIS_SIGNED_BIT(op)) {
         subinstr = "SH";
@@ -44,9 +58,10 @@ void dt_halfword_instr(uint32_t op) {
         data_swap_instr(op);
         return;
     }
-    
+
+have_subinstr:
     cond = get_condition_string(op);
-    dthw_get_offset_string(op, offset, sizeof(offset));
+    dtex_get_offset_string(op, offset, sizeof(offset));
     get_addr_string(op, ADIS_RN(op), offset, addr, sizeof(addr));
 
     if (ADIS_LOAD_BIT(op)) {
