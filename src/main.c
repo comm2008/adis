@@ -66,6 +66,8 @@ int main(int argc, char* argv[]) {
             data_swap_instr(op);
         } else if (is_multi(op)) {
             multi_instr(op);
+        } else if (is_halfword_multi(op)) {
+            halfword_multi_instr(op);
         } else if (is_dp_psr(op)) {
             dp_psr_instr(op);
         } else if (is_saturating_instr(op)) {

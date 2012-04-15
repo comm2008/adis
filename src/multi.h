@@ -22,5 +22,6 @@
 #include <stdint.h>
 
 void multi_instr(uint32_t op);
+void halfword_multi_instr(uint32_t op);
 
 #endif  // __ADIS_MULTI_H__

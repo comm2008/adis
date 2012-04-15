@@ -21,14 +21,14 @@
 #include "multi.h"
 #include "common.h"
 
-// For some reason, these two registers are reversed
+// For some reason, these two registers are switched
 // in this instruction
 #undef ADIS_RD
 #undef ADIS_RN
 
 #define ADIS_RD(_op)    ((_op & 0x000F0000) >> 16)
-#define ADIS_RN(_op)    ((_op & 0x0000F000) >> 12)
-#define ADIS_RS(_op)    ((_op & 0x00000F00) >> 8)
+#define ADIS_RS(_op)    ((_op & 0x0000F000) >> 12)
+#define ADIS_RN(_op)    ((_op & 0x00000F00) >> 8)
 
 // Same as ADIS_RD and ADIS_RN, just different names
 // for long multiplication
@@ -38,6 +38,30 @@
 #define ADIS_ACCUM_BIT(_op)     (_op & 0x00200000)
 #define ADIS_SIGNED_BIT(_op)    (_op & 0x00400000)
 #define ADIS_LONG_BIT(_op)      (_op & 0x00800000)
+
+/* 
+ * Halfword Multiplies - classified in 4 different categories:
+ *   - 32-bit accumulate                                            (ACCUM)
+ *   - 64-bit accumulate                                            (LACCUM)
+ *   - 32-bit result                                                (RESULT)
+ *   - "Mixed-size" operand multiplication, meaning the instruction
+ *     multiplies 32-bits of RN by the top or bottom 16-bits of     (MIXED)
+ *     RM
+ *
+ * The first 3 are pretty straightforward, but the last one is a bit
+ * complicated. ADIS_HW_MIXED_RESULTBIT determines whether we are left
+ * with a 32-bit result or a 32-bit accumulate
+ */
+
+#define ADIS_HW_ACCUM(_op)              (! (_op & 0x00600000))
+#define ADIS_HW_LACCUM(_op)             (!((_op & 0x00600000) ^ 0x00400000))
+#define ADIS_HW_RESULT(_op)             (!((_op & 0x00600000) ^ 0x00600000))
+
+// If it isn't one of those three, then it must be a "mixed-size" instruction
+#define ADIS_HW_MIXED_RESULT_BIT(_op)   (_op & 0x00000020)
+
+#define ADIS_HW_RMHI_BIT(_op)           (_op & 0x00000020)
+#define ADIS_HW_RNHI_BIT(_op)           (_op & 0x00000040)
 
 static int is_mls_instr(uint32_t op) {
     return !((op & 0x00F00000) ^ 0x00600000);
@@ -75,7 +99,7 @@ static void long_multi_instr(uint32_t op) {
     }
 
     printf("%s%s%s R%d,R%d,R%d,R%d\n", opstr, cond, setcond, ADIS_RDLO(op),
-        ADIS_RDHI(op), ADIS_RM(op), ADIS_RS(op));
+        ADIS_RDHI(op), ADIS_RM(op), ADIS_RN(op));
 }
 
 void multi_instr(uint32_t op) {
@@ -104,9 +128,49 @@ void multi_instr(uint32_t op) {
     if (ADIS_ACCUM_BIT(op)) {
         // multiply and accumulate
         printf("MLA%s%s R%d,R%d,R%d,R%d\n", cond, setcond, ADIS_RD(op), 
-            ADIS_RM(op), ADIS_RS(op), ADIS_RN(op));
+            ADIS_RM(op), ADIS_RN(op), ADIS_RS(op));
     } else {
         printf("MUL%s%s R%d,R%d,R%d\n", cond, setcond, ADIS_RD(op),
-            ADIS_RM(op), ADIS_RS(op));
+            ADIS_RM(op), ADIS_RN(op));
+    }
+}
+
+void halfword_multi_instr(uint32_t op) {
+    
+    char *cond, *opstr, *rn_half = NULL, *rm_half = NULL;
+    uint8_t accum = 0;
+
+    if (ADIS_HW_ACCUM(op)) {
+        opstr = "SMLA";
+        accum = 1;
+    } else if (ADIS_HW_LACCUM(op)) {
+        opstr = "SMLAL";
+        accum = 1;
+    } else if (ADIS_HW_RESULT(op)) {
+        opstr = "SMUL";
+    } else {
+        // Mixed size instruction
+        if (ADIS_HW_MIXED_RESULT_BIT(op)) {
+            opstr = "SMUL";
+        } else {
+            opstr = "SMLA";
+            accum = 1;
+        }
+        
+        rm_half = "W";
+    }
+
+    if (!rn_half) {
+        rn_half = ADIS_HW_RNHI_BIT(op) ? "T" : "B";
+    }
+
+    rm_half = ADIS_HW_RMHI_BIT(op) ? "T" : "B";
+
+    if (accum) {
+        printf("%s%s%s%s R%d,R%d,R%d,R%d\n", opstr, cond, rm_half, rn_half,
+            ADIS_RD(op), ADIS_RM(op), ADIS_RN(op), ADIS_RS(op));
+    } else {
+        printf("%s%s%s%s R%d,R%d,R%d\n", opstr, cond, rm_half, rn_half,
+            ADIS_RD(op), ADIS_RM(op), ADIS_RN(op));
     }
 }
