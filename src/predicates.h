@@ -41,7 +41,7 @@ static inline int is_dp_psr(uint32_t op) {
 }
 
 // saturating add / subtract
-static inline int is_saturating_instr(uint32_t op) {
+static inline int is_saturating(uint32_t op) {
     return !((op & 0x0F9000F0) ^ 0x01000050);
 }
 

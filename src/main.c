@@ -70,7 +70,7 @@ int main(int argc, char* argv[]) {
             halfword_multi_instr(op);
         } else if (is_dp_psr(op)) {
             dp_psr_instr(op);
-        } else if (is_saturating_instr(op)) {
+        } else if (is_saturating(op)) {
             saturating_instr(op);
         } else if (is_branch(op)) {
             branch_instr(op);
