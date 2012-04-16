@@ -16,11 +16,11 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef __ADIS_DT_HALFWORD_H__
-#define __ADIS_DT_HALFWORD_H__
+#ifndef __ADIS_DT_EXTRA_H__
+#define __ADIS_DT_EXTRA_H__
 
 #include <stdint.h>
 
 void dt_extra_instr(uint32_t op);
 
-#endif  // __ADIS_DT_HALFWORD_H__
+#endif  // __ADIS_DT_EXTRA_H__

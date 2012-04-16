@@ -31,6 +31,7 @@ static inline int is_multi(uint32_t op) {
     return !((op & 0x0F0000F0) ^ 0x00000050);
 }
 
+// halfword multiplication operations
 static inline int is_halfword_multi(uint32_t op) {
     return !((op & 0x0F900090) ^ 0x01000080);
 }

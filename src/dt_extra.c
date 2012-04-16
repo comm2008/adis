@@ -51,6 +51,7 @@ void dt_extra_instr(uint32_t op) {
     }
 
     if (!ADIS_HW_BIT(op) && !ADIS_SIGNED_BIT(op)) {
+        // Regular SWP instruction, handled by sync_instr
         sync_instr(op);
         return;
     }
