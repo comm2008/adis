@@ -25,6 +25,7 @@
 
 #define ADIS_HW_BIT(_op)            (_op & 0x00000020)
 #define ADIS_SIGNED_BIT(_op)        (_op & 0x00000040)
+#define ADIS_UNPRIV_BIT(_op)        (_op & 0x00200000)
 
 static inline int is_dt_dual(op) {
     return !((op & 0x00100040) ^ 0x00000040);
@@ -38,26 +39,31 @@ static void dtex_get_offset_string(uint32_t op, char *offset, size_t bsize) {
 }
 
 void dt_extra_instr(uint32_t op) {
-    char addr[32], offset[8], *subinstr, *cond;
+    char addr[32], offset[8], *subinstr, *cond, *unpriv;
 
     // Special bit combination for dual instructions,
     // other instructions are either signed, halfword,
     // both, or neither (regular data swap)
     if (is_dt_dual(op)) {
         subinstr = "D";
+        unpriv = "";
         goto have_subinstr;
+    }
+
+    if (!ADIS_HW_BIT(op) && !ADIS_SIGNED_BIT(op)) {
+        data_swap_instr(op);
+        return;
     }
 
     if (ADIS_HW_BIT(op) && ADIS_SIGNED_BIT(op)) {
         subinstr = "SH";
     } else if (!ADIS_HW_BIT(op) && ADIS_SIGNED_BIT(op)) {
         subinstr = "SB";
-    } else if (ADIS_HW_BIT(op) && !ADIS_SIGNED_BIT(op)) {
-        subinstr = "H";
     } else {
-        data_swap_instr(op);
-        return;
+        subinstr = "H";
     }
+
+    unpriv = ADIS_UNPRIV_BIT(op) ? "T" : "";
 
 have_subinstr:
     cond = get_condition_string(op);
@@ -65,8 +71,8 @@ have_subinstr:
     get_addr_string(op, ADIS_RN(op), offset, addr, sizeof(addr));
 
     if (ADIS_LOAD_BIT(op)) {
-        printf("LDR%s%s R%d,%s\n", cond, subinstr, ADIS_RD(op), addr);
+        printf("LDR%s%s%s R%d,%s\n", subinstr, unpriv, cond, ADIS_RD(op), addr);
     } else {
-        printf("STR%s%s R%d,%s\n", cond, subinstr, ADIS_RD(op), addr);
+        printf("STR%s%s%s R%d,%s\n", subinstr, unpriv, cond, ADIS_RD(op), addr);
     }
 }
