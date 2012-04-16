@@ -16,24 +16,11 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include <stdio.h>
+#ifndef __ADIS_SYNC_H__
+#define __ADIS_SYNC_H__
 
-#include "dataswap.h"
-#include "common.h"
+#include <stdint.h>
 
-void data_swap_instr(uint32_t op) {
+void sync_instr(uint32_t op);
 
-    char *cond;
-    cond = get_condition_string(op);
-
-    if (ADIS_BYTE_BIT(op)) {
-        // swap byte
-        printf("SWP%sB R%d,R%d,[R%d]\n", cond, ADIS_RD(op), ADIS_RM(op),
-            ADIS_RN(op));
-    } else {
-        // swap word
-        printf("SWP%s R%d,R%d,[R%d]\n", cond, ADIS_RD(op), ADIS_RM(op),
-            ADIS_RN(op));
-    }
-}
-
+#endif  // __ADIS_SYNC_H__

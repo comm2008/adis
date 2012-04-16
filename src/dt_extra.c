@@ -20,7 +20,7 @@
 #include <stdlib.h>
 
 #include "dt_extra.h"
-#include "dataswap.h"
+#include "sync.h"
 #include "common.h"
 
 #define ADIS_HW_BIT(_op)            (_op & 0x00000020)
@@ -51,7 +51,7 @@ void dt_extra_instr(uint32_t op) {
     }
 
     if (!ADIS_HW_BIT(op) && !ADIS_SIGNED_BIT(op)) {
-        data_swap_instr(op);
+        sync_instr(op);
         return;
     }
 

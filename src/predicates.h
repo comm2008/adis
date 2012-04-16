@@ -21,9 +21,9 @@
 
 #include <stdint.h>
 
-// data swap operation
-static inline int is_data_swap(uint32_t op) {
-    return !((op & 0x0FB00FF0) ^ 0x01000090);
+// synchronization primitive (SWP, STREX, LDRX)
+static inline int is_sync_primitive(uint32_t op) {
+    return !((op & 0x0F0000F0) ^ 0x01000090);
 }
 
 // multiplication operation

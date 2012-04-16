@@ -23,7 +23,7 @@
 #include "dataproc.h"
 #include "satop.h"
 #include "multi.h"
-#include "dataswap.h"
+#include "sync.h"
 #include "branch.h"
 #include "dt_single.h"
 #include "dt_block.h"
@@ -62,8 +62,8 @@ int main(int argc, char* argv[]) {
     while (readop(&op)) {
         printf("op: 0x%.8X\n", op);
         printf("0x%.8X:\t", count);
-        if (is_data_swap(op)) {
-            data_swap_instr(op);
+        if (is_sync_primitive(op)) {
+            sync_instr(op);
         } else if (is_multi(op)) {
             multi_instr(op);
         } else if (is_halfword_multi(op)) {
