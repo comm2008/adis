@@ -53,91 +53,18 @@ static inline int is_no_result(uint32_t op) {
     return (opcode >= 0x1000) && (opcode <= 0x1011);
 }
 
-static void get_operation_string(uint32_t op, char *buffer, size_t bsize) {
-
-    char *tmp;
-    uint32_t opcode = ADIS_OPCODE(op);
-
-    switch(opcode) {
-        case 0x00:
-            // AND operation
-            tmp = "AND";
-            break;
-        case 0x01:
-            // XOR / EOR operation
-            tmp = "TMP";
-            break;
-        case 0x02:
-            // subtraction
-            tmp = "SUB";
-            break;
-        case 0x03:
-            // reverse subtraction
-            tmp = "RSB";
-            break;
-        case 0x04:
-            // addition
-            tmp = "ADD";
-            break;
-        case 0x05:
-            // add + carry
-            tmp = "ADC";
-            break;
-        case 0x06:
-            // subtract + carry
-            tmp = "SBC";
-            break;
-        case 0x07:
-            // reverse subtract + carry
-            tmp = "RSC";
-            break;
-        case 0x08:
-            // set condition codes op1 AND op2
-            tmp = "TST";
-            break;
-        case 0x09:
-            // set condition codes op1 EOR op2
-            tmp = "TEQ";
-            break;
-        case 0x0A:
-            // set condition codes op1 - op2
-            tmp = "CMP";
-            break;
-        case 0x0B:
-            // set condition codes op1 + op2
-            tmp = "CMN";
-            break;
-        case 0x0C:
-            // OR operation
-            tmp = "ORR";
-            break;
-        case 0x0D:
-            // MOV (Rd := op2)
-            tmp = "MOV";
-            break;
-        case 0x0E:
-            // BIC (Rd := op1 AND NOT op2)
-            tmp = "BIC";
-            break;
-        case 0x0F:
-            // MVN (Rd := NOT op2)
-            tmp = "MVN";
-            break;
-    }
-
-    memcpy(buffer, tmp, ADIS_MIN(bsize, sizeof(tmp)));
-}
-
 static void data_proc_instr(uint32_t op) {
+    char offset[16], *cond, *setcond;
+    static char *opstr[16] = { "AND", "EOR", "SUB", "RSB",
+                               "ADD", "ADC", "SBC", "RSC",
+                               "TST", "TEQ", "CMP", "CMN",
+                               "ORR", "MOV", "BIC", "MVN" };
 
-    char opstr[4], offset[16], *cond, *setcond;
-    
     cond = get_condition_string(op);
-    get_operation_string(op, opstr, sizeof(opstr));
     get_offset_string(op, offset, sizeof(offset), 1);
 
     if (is_no_result(op)) {
-        printf("%s%s R%d,%s\n", opstr, cond, ADIS_RN(op), offset);
+        printf("%s%s R%d,%s\n", opstr[ADIS_OPCODE(op)], cond, ADIS_RN(op), offset);
     } else {
         // check if condition code flag is set
         if (ADIS_SETCOND_BIT(op)) {
@@ -147,11 +74,11 @@ static void data_proc_instr(uint32_t op) {
         }
 
         if (is_single_op(op)) {
-            printf("%s%s%s R%d,%s\n", opstr, cond, setcond, 
-                ADIS_RD(op), offset);
+            printf("%s%s%s R%d,%s\n", opstr[ADIS_OPCODE(op)], cond,
+                setcond, ADIS_RD(op), offset);
         } else {
-            printf("%s%s%s R%d,R%d,%s\n", opstr, cond, setcond,
-                ADIS_RD(op), ADIS_RN(op), offset);
+            printf("%s%s%s R%d,R%d,%s\n", opstr[ADIS_OPCODE(op)], cond,
+                setcond, ADIS_RD(op), ADIS_RN(op), offset);
         }
     }
 }

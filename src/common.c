@@ -64,128 +64,27 @@ void get_offset_string(uint32_t op, char *buffer, size_t bsize, uint8_t dp) {
 
 char *get_condition_string(uint32_t op) {
 
-    char *tmp = NULL;
-    uint32_t cond = ADIS_COND(op);
-
-    switch(cond) {
-        case 0x00:
-            // equal
-            tmp = "EQ";
-            break;
-        case 0x01:
-            // not equal
-            tmp = "NE";
-            break;
-        case 0x02:
-            // unsigned higher or same
-            tmp = "CS";
-            break;
-        case 0x03:
-            // unsigned lower
-            tmp = "CC";
-            break;
-        case 0x04:
-            // negative
-            tmp = "MI";
-            break;
-        case 0x05:
-            // positive or zero
-            tmp = "PL";
-            break;
-        case 0x06:
-            // overflow
-            tmp = "VS";
-            break;
-        case 0x07:
-            // no overflow
-            tmp = "VC";
-            break;
-        case 0x08:
-            // unsigned higher
-            tmp = "HI";
-            break;
-        case 0x09:
-            // unsigned lower or same
-            tmp = "LS";
-            break;
-        case 0x0A:
-            // greater or equal
-            tmp = "GE";
-            break;
-        case 0x0B:
-            // less than
-            tmp = "LT";
-            break;
-        case 0x0C:
-            // greater than
-            tmp = "GT";
-            break;
-        case 0x0D:
-            // less than or equal
-            tmp = "LE";
-            break;
-        case 0x0E:
-            // always
-            tmp = "AL";
-            break;
-        case 0x0F:
-            // never
-            tmp = "NV";
-            break;
-    }
-
-    return tmp;
+    static char *cond[16] = { "EQ", "NE", "CS", "CC",
+                              "MI", "PL", "VS", "VC",
+                              "HI", "LS", "GE", "LT",
+                              "GT", "LE", "AL", "NV" };
+    return cond[ADIS_COND(op)];
 }
 
 void get_shift_string(uint32_t shift, char *buffer, size_t bsize) {
 
-    char *s_type;
+    static char *shiftstr[4] = {"LSL", "LSR", "ASR", "ROR"};
 
     if (shift & 0x01) {
         // shifted by amount in register
         uint32_t s_reg = shift & 0xE0 >> 4;
-        switch (shift & 0x06 >> 1) {
-            case 0x00:
-                // logical left
-                s_type = "LSL";
-                break;
-            case 0x01:
-                // logical right
-                s_type = "LSR";
-                break;
-            case 0x02:
-                // arithmetic right
-                s_type = "ASR";
-                break;
-            case 0x03:
-                s_type = "ROR";
-                break;
-        }
         snprintf(buffer, ADIS_MIN(bsize, sizeof(",XXX Rxx")),
-            ",%s R%d", s_type, s_reg);
+            ",%s R%d", shiftstr[shift & 0x06 >> 1], s_reg);
     } else {
         uint32_t imm = shift & 0xF0 >> 3;
         if (imm != 0) {
-            switch (shift & 0x06 >> 1) {
-                case 0x00:
-                    // logical left
-                    s_type = "LSL";
-                    break;
-                case 0x01:
-                    // logical right
-                    s_type = "LSR";
-                    break;
-                case 0x02:
-                    // arithmetic right
-                    s_type = "ASR";
-                    break;
-                case 0x03:
-                    // rotate right
-                    s_type = "ROR";
-                    break;
-            }
             snprintf(buffer, ADIS_MIN(bsize, sizeof(",XXX #xx")),
-                ",%s #%d", s_type, imm);
+                ",%s #%d", shiftstr[shift & 0x06 >> 1], imm);
         } else if (bsize > 0) {
             buffer[0] = 0;
         }
