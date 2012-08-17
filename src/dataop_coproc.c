@@ -24,8 +24,9 @@
 
 #define ADIS_OPCODE(_op)        ((_op & 0x00F00000) >> 20)
 
-void dataop_coproc_instr(uint32_t op) {
-    uint8_t coproc_info;
+void dataop_coproc_instr(uint32_t op)
+{
+    uint32_t coproc_info;
     char *cond;
 
     cond = get_condition_string(op);

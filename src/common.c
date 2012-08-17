@@ -23,8 +23,8 @@
 
 #define ADIS_COND(_op)          ((_op & 0xF0000000) >> 28)
 
-void get_offset_string(uint32_t op, char *buffer, size_t bsize, uint8_t dp) {
-
+void get_offset_string(uint32_t op, char *buffer, size_t bsize, uint8_t dp)
+{
     uint32_t shift;
 
     if (ADIS_IMMOP_BIT(op)) {
@@ -62,8 +62,8 @@ void get_offset_string(uint32_t op, char *buffer, size_t bsize, uint8_t dp) {
     }
 }
 
-char *get_condition_string(uint32_t op) {
-
+char *get_condition_string(uint32_t op)
+{
     static char *cond[16] = { "EQ", "NE", "CS", "CC",
                               "MI", "PL", "VS", "VC",
                               "HI", "LS", "GE", "LT",
@@ -71,8 +71,8 @@ char *get_condition_string(uint32_t op) {
     return cond[ADIS_COND(op)];
 }
 
-void get_shift_string(uint32_t shift, char *buffer, size_t bsize) {
-
+void get_shift_string(uint32_t shift, char *buffer, size_t bsize)
+{
     static char *shiftstr[4] = {"LSL", "LSR", "ASR", "ROR"};
 
     if (shift & 0x01) {
@@ -102,8 +102,8 @@ void get_shift_string(uint32_t shift, char *buffer, size_t bsize) {
  */
 
 void
-get_addr_string(uint32_t op, uint8_t r_bs, char *offst, char *bfr, size_t bsz) {
-
+get_addr_string(uint32_t op, uint8_t r_bs, char *offst, char *bfr, size_t bsz)
+{
     // pre-indexed
     if (ADIS_PREINDEX_BIT(op)) {
         snprintf(bfr, ADIS_MIN(bsz, sizeof(r_bs) + sizeof(offst) + 6),

@@ -21,25 +21,20 @@
 #include "dt_single.h"
 #include "common.h"
 
-void dt_single_instr(uint32_t op) {
+void dt_single_instr(uint32_t op)
+{
+    char addr[32], offset[16], *cond, tsize;
 
-    char addr[32], offset[16], *cond, *tsize;
-
-    cond = get_condition_string(op);
     get_offset_string(op, offset, sizeof(offset), 0);
     get_addr_string(op, ADIS_RN(op), offset, addr, sizeof(addr));
-
     // byte / word
-    if (ADIS_BYTE_BIT(op)) {
-        tsize = "B";
-    } else {
-        tsize = "";
-    }
+    tsize = ADIS_BYTE_BIT(op) ? 'B' : 0;
+    cond = get_condition_string(op);
 
     // load / store
     if (ADIS_LOAD_BIT(op)) {
-        printf("LDR%s%s R%d,%s\n", cond, tsize, ADIS_RD(op), addr);
+        printf("LDR%s%c R%d,%s\n", cond, tsize, ADIS_RD(op), addr);
     } else {
-        printf("STR%s%s R%d,%s\n", cond, tsize, ADIS_RD(op), addr);
+        printf("STR%s%c R%d,%s\n", cond, tsize, ADIS_RD(op), addr);
     }
 }

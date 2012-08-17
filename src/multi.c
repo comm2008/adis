@@ -63,48 +63,33 @@
 #define ADIS_HW_RMHI_BIT(_op)           (_op & 0x00000020)
 #define ADIS_HW_RNHI_BIT(_op)           (_op & 0x00000040)
 
-static int is_mls_instr(uint32_t op) {
+static int is_mls_instr(uint32_t op)
+{
     return !((op & 0x00F00000) ^ 0x00600000);
 }
 
 // Used for long multiplication instructions
-static char *get_operation_string(uint32_t op) {
-
-    char *ret;
-
-    if (ADIS_SIGNED_BIT(op) && ADIS_ACCUM_BIT(op)) {
-        ret = "UMLAL";
-    } else if (ADIS_SIGNED_BIT(op) && !ADIS_ACCUM_BIT(op)) {
-        ret = "UMULL";
-    } else if (!ADIS_SIGNED_BIT(op) && ADIS_ACCUM_BIT(op)) {
-        ret = "SMLAL";
-    } else {
-        ret = "SMULL";
-    }
-
-    return ret;
+static char *get_operation_string(uint32_t op)
+{
+    static char *opstr[4] = {"SMULL", "SMLAL", "UMULL", "UMLAL"};
+    return opstr[ADIS_ACCUM_BIT(op) | (ADIS_SIGNED_BIT(op) << 1)];
 }
 
-static void long_multi_instr(uint32_t op) {
-
-    char *cond, *opstr, *setcond;
+static void long_multi_instr(uint32_t op)
+{
+    char *cond, *opstr, setcond;
 
     cond = get_condition_string(op);
     opstr = get_operation_string(op);
+    setcond = ADIS_SETCOND_BIT(op) ? 'S' : 0;
     
-    if (ADIS_SETCOND_BIT(op)) {
-        setcond = "S";
-    } else {
-        setcond = "";
-    }
-
-    printf("%s%s%s R%d,R%d,R%d,R%d\n", opstr, cond, setcond, ADIS_RDLO(op),
+    printf("%s%s%c R%d,R%d,R%d,R%d\n", opstr, cond, setcond, ADIS_RDLO(op),
         ADIS_RDHI(op), ADIS_RM(op), ADIS_RN(op));
 }
 
-void multi_instr(uint32_t op) {
-
-    char *cond, *setcond;
+void multi_instr(uint32_t op)
+{
+    char *cond, setcond;
     cond = get_condition_string(op);
 
     if (is_mls_instr(op)) {
@@ -119,26 +104,22 @@ void multi_instr(uint32_t op) {
     }
 
     // If we get here, this is just a regular multiplication instruction
-    if (ADIS_SETCOND_BIT(op)) {
-        setcond = "S";
-    } else {
-        setcond = "";
-    }
+    setcond = ADIS_SETCOND_BIT(op) ? 'S' : 0;
 
     if (ADIS_ACCUM_BIT(op)) {
         // multiply and accumulate
-        printf("MLA%s%s R%d,R%d,R%d,R%d\n", cond, setcond, ADIS_RD(op), 
+        printf("MLA%s%c R%d,R%d,R%d,R%d\n", cond, setcond, ADIS_RD(op), 
             ADIS_RM(op), ADIS_RN(op), ADIS_RS(op));
     } else {
-        printf("MUL%s%s R%d,R%d,R%d\n", cond, setcond, ADIS_RD(op),
+        printf("MUL%s%c R%d,R%d,R%d\n", cond, setcond, ADIS_RD(op),
             ADIS_RM(op), ADIS_RN(op));
     }
 }
 
-void halfword_multi_instr(uint32_t op) {
-    
-    char *cond, *opstr, *rn_half = NULL, *rm_half = NULL;
-    uint8_t accum = 0;
+void halfword_multi_instr(uint32_t op)
+{
+    char *cond, *opstr, rn_half = 0, rm_half = 0;
+    uint32_t accum = 0;
 
     if (ADIS_HW_ACCUM(op)) {
         opstr = "SMLA";
@@ -157,20 +138,20 @@ void halfword_multi_instr(uint32_t op) {
             accum = 1;
         }
         
-        rm_half = "W";
+        rm_half = 'W';
     }
 
     if (!rn_half) {
-        rn_half = ADIS_HW_RNHI_BIT(op) ? "T" : "B";
+        rn_half = ADIS_HW_RNHI_BIT(op) ? 'T' : 'B';
     }
 
-    rm_half = ADIS_HW_RMHI_BIT(op) ? "T" : "B";
+    rm_half = ADIS_HW_RMHI_BIT(op) ? 'T' : 'B';
 
     if (accum) {
-        printf("%s%s%s%s R%d,R%d,R%d,R%d\n", opstr, cond, rm_half, rn_half,
+        printf("%s%s%c%c R%d,R%d,R%d,R%d\n", opstr, cond, rm_half, rn_half,
             ADIS_RD(op), ADIS_RM(op), ADIS_RN(op), ADIS_RS(op));
     } else {
-        printf("%s%s%s%s R%d,R%d,R%d\n", opstr, cond, rm_half, rn_half,
+        printf("%s%s%c%c R%d,R%d,R%d\n", opstr, cond, rm_half, rn_half,
             ADIS_RD(op), ADIS_RM(op), ADIS_RN(op));
     }
 }

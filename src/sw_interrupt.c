@@ -21,11 +21,10 @@
 #include "sw_interrupt.h"
 #include "common.h"
 
-void sw_interrupt_instr(uint32_t op) {
+#define ADIS_SWI_DATA(_op)  (_op & 0x00FFFFFF)
 
-    char *cond;
-
-    cond = get_condition_string(op);
-
-    printf("SWI%s =0x%x\n", cond, op & 0x00FFFFFF);
+void sw_interrupt_instr(uint32_t op)
+{
+    char *cond = get_condition_string(op);
+    printf("SWI%s =0x%x\n", cond, ADIS_SWI_DATA(op));
 }

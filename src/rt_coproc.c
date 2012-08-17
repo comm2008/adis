@@ -23,16 +23,13 @@
 
 #define ADIS_CPMODE(_op)    ((_op & 0x00E00000) >> 21)
 
-void rt_coproc_instr(uint32_t op) {
+void rt_coproc_instr(uint32_t op)
+{
+    char *opstr, *cond;
+    uint32_t coproc_info = ADIS_CPINFO(op);
 
-    char *opstr, *cond = get_condition_string(op);
-    uint8_t coproc_info = ADIS_CPINFO(op);
-
-    if (ADIS_LOAD_BIT(op)) {
-        opstr = "MRC";
-    } else {
-        opstr = "MCR";
-    }
+    cond = get_condition_string(op);
+    opstr = ADIS_LOAD_BIT(op) ? "MRC" : "MCR";
 
     if (coproc_info > 0) {
         printf("%s%s %d,%d,R%d,c%d,c%d,%d\n", opstr, cond, ADIS_CPNUM(op),

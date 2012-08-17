@@ -24,25 +24,14 @@
 #define ADIS_SUBTRACT_BIT(_op)  (_op & 0x00200000)
 #define ADIS_DOUBLE_BIT(_op)    (_op & 0x00400000)
 
-static char *get_operation_string(uint32_t op) {
-
-    char *ret;
-
-    if (ADIS_SUBTRACT_BIT(op) && ADIS_DOUBLE_BIT(op)) {
-        ret = "QDSUB";
-    } else if (ADIS_SUBTRACT_BIT(op) && !ADIS_DOUBLE_BIT(op)) {
-        ret = "QSUB";
-    } else if (!ADIS_SUBTRACT_BIT(op) && ADIS_DOUBLE_BIT(op)) {
-        ret = "QDADD";
-    } else {
-        ret = "QADD";
-    }
-
-    return ret;
+static char *get_operation_string(uint32_t op)
+{
+    static char *opstr[4] = {"QADD", "QDADD", "QSUB", "QDSUB"};
+    return opstr[ADIS_DOUBLE_BIT(op) | (ADIS_SUBTRACT_BIT(op) << 1)];
 }
 
-void saturating_instr(uint32_t op) {
-
+void saturating_instr(uint32_t op)
+{
     char *cond, *opstr;
 
     cond = get_condition_string(op);

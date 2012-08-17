@@ -33,8 +33,8 @@
 #include "dataop_coproc.h"
 #include "sw_interrupt.h"
 
-static int readop(/*out */ uint32_t * op) {
-
+static int readop(/*out */ uint32_t * op)
+{
     char c;
     uint8_t i;
 
@@ -54,8 +54,8 @@ static int readop(/*out */ uint32_t * op) {
     return 1;
 }
 
-int main(int argc, char* argv[]) {
-
+int main(int argc, char* argv[])
+{
     uint32_t op = 0;
     uint32_t count = 0;
 

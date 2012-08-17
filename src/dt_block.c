@@ -26,23 +26,16 @@
 
 #define ADIS_PSR_BIT(_op)       (_op & 0x00400000)
 
-static void get_addr_mode_string(uint32_t op, char *buffer, size_t bsize) {
- 
-    if (ADIS_PREINDEX_BIT(op) && ADIS_ADDOFFSET_BIT(op)) {
-        snprintf(buffer, ADIS_MIN(bsize, sizeof("xx")), "IB");
-    } else if (ADIS_PREINDEX_BIT(op) && !ADIS_ADDOFFSET_BIT(op)) {
-        snprintf(buffer, ADIS_MIN(bsize, sizeof("xx")), "DB");
-    } else if (!ADIS_PREINDEX_BIT(op) && ADIS_ADDOFFSET_BIT(op)) {
-        snprintf(buffer, ADIS_MIN(bsize, sizeof("xx")), "IA");
-    } else {
-        snprintf(buffer, ADIS_MIN(bsize, sizeof("xx")), "DA");
-    }
+static char *get_addr_mode_string(uint32_t op)
+{
+    static char *addr_mode[4] = { "DA", "IA", "DB", "IB" };
+    return addr_mode[ADIS_ADDOFFSET_BIT(op) | (ADIS_PREINDEX_BIT(op) << 1)];
 }
 
-static void get_register_list_string(uint32_t op, char **buffer) {
-
+static void get_register_list_string(uint32_t op, char **buffer)
+{
     char *ret = malloc(sizeof(char)*ADIS_INIT_ALLOC);
-    uint8_t pos = 0, max = ADIS_INIT_ALLOC, before = 0, i = 0;
+    uint32_t pos = 0, max = ADIS_INIT_ALLOC, before = 0, i = 0;
 
     if (ret == NULL) {
         printf("BDT: Failed to allocate memory.\n");
@@ -81,35 +74,26 @@ static void get_register_list_string(uint32_t op, char **buffer) {
     *buffer = ret;
 }
 
-void dt_block_instr(uint32_t op) {
-
-    char  addr_mode[4], *cond, *psr, *wb, *r_list = NULL;
+void dt_block_instr(uint32_t op)
+{
+    char *addr_mode, *cond, psr, wb, *r_list = NULL;
 
     get_register_list_string(op, &r_list);
     if (r_list == NULL) {
+        printf("ADIS_ERROR: Out of memory\n");
         return;
     }
 
+    addr_mode = get_addr_mode_string(op);
     cond = get_condition_string(op);
-    get_addr_mode_string(op, addr_mode, sizeof(addr_mode));
-
-    if (ADIS_PSR_BIT(op)) {
-        psr = "^";
-    } else {
-        psr = "";
-    }
-
-    if (ADIS_WRITE_BIT(op)) {
-        wb = "!";
-    } else {
-        wb = "";
-    }
+    psr = ADIS_PSR_BIT(op) ? '^' : 0;
+    wb = ADIS_WRITE_BIT(op) ? '!' : 0;
 
     if (ADIS_LOAD_BIT(op)) {
-        printf("LDR%s%s R%d%s,%s%s\n", cond, addr_mode, ADIS_RN(op), wb,
+        printf("LDR%s%s R%d%c,%s%c\n", cond, addr_mode, ADIS_RN(op), wb,
             r_list, psr);
     } else {
-        printf("STM%s%s R%d%s,%s%s\n", cond, addr_mode, ADIS_RN(op), wb,
+        printf("STM%s%s R%d%c,%s%c\n", cond, addr_mode, ADIS_RN(op), wb,
             r_list, psr);
     }
 

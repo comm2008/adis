@@ -24,10 +24,9 @@
 #define ADIS_DBLWORD_BIT(_op)        (op & 0x00200000)
 #define ADIS_EXCL_BIT(_op)          (op & 0x00800000)
 
-static void swap_instr(uint32_t op) {
-
-    char *cond;
-    cond = get_condition_string(op);
+static void swap_instr(uint32_t op)
+{
+    char *cond = get_condition_string(op);
 
     if (ADIS_BYTE_BIT(op)) {
         // swap byte
@@ -40,9 +39,9 @@ static void swap_instr(uint32_t op) {
     }
 }
 
-void sync_instr(uint32_t op) {
-
-    char *cond, *size;
+void sync_instr(uint32_t op)
+{
+    char *cond, size;
 
     if (!ADIS_EXCL_BIT(op)) {
         swap_instr(op);
@@ -52,9 +51,9 @@ void sync_instr(uint32_t op) {
     cond = get_condition_string(op);
 
     if (ADIS_BYTE_BIT(op) && ADIS_DBLWORD_BIT(op)) {
-        size = "H";
+        size = 'H';
     } else if (ADIS_BYTE_BIT(op)) {
-        size = "B";
+        size = 'B';
     } else if (ADIS_DBLWORD_BIT(op)) {
         // Special case - two destination / source registers so just
         // decode the instruction separately
@@ -68,13 +67,13 @@ void sync_instr(uint32_t op) {
         // All done at this point
         return;
     } else {
-        size = "";
+        size = 0;
     }
 
     if (ADIS_LOAD_BIT(op)) {
-        printf("LDREX%s%s R%d,[R%d]\n", size, cond, ADIS_RD(op), ADIS_RN(op));
+        printf("LDREX%c%s R%d,[R%d]\n", size, cond, ADIS_RD(op), ADIS_RN(op));
     } else {
-        printf("STREX%s%s R%d,R%d,[R%d]\n", size, cond, ADIS_RD(op),
+        printf("STREX%c%s R%d,R%d,[R%d]\n", size, cond, ADIS_RD(op),
             ADIS_RM(op), ADIS_RN(op));
     }
 }

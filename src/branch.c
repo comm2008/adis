@@ -21,17 +21,16 @@
 #include "branch.h"
 #include "common.h"
 
-#define ADIS_LINK_BIT(_op)   (_op & 0x01000000)
+#define ADIS_LINK_BIT(_op)      (_op & 0x01000000)
+#define ADIS_BRANCH_OFFSET(_op) (_op & 0x00FFFFFF)
 
-void branch_instr(uint32_t op) {
-
-    char *cond;
-
-    cond = get_condition_string(op);
+void branch_instr(uint32_t op)
+{
+    char *cond = get_condition_string(op);
 
     if (ADIS_LINK_BIT(op)) {
-        printf("BL%s =0x%.8X\n", cond, op & 0x00FFFFFF);
+        printf("BL%s =0x%.8X\n", cond, ADIS_BRANCH_OFFSET(op));
     } else {
-        printf("B%s =0x%.8X\n", cond, op & 0x00FFFFFF);
+        printf("B%s =0x%.8X\n", cond, ADIS_BRANCH_OFFSET(op));
     }
 }
