@@ -121,6 +121,8 @@ void halfword_multi_instr(uint32_t op)
     char *cond, *opstr, rn_half = 0, rm_half = 0;
     uint32_t accum = 0;
 
+    cond = get_condition_string(op);
+
     if (ADIS_HW_ACCUM(op)) {
         opstr = "SMLA";
         accum = 1;
@@ -141,11 +143,11 @@ void halfword_multi_instr(uint32_t op)
         rm_half = 'W';
     }
 
-    if (!rn_half) {
-        rn_half = ADIS_HW_RNHI_BIT(op) ? 'T' : 'B';
+    if (!rm_half) {
+        rm_half = ADIS_HW_RMHI_BIT(op) ? 'T' : 'B';
     }
 
-    rm_half = ADIS_HW_RMHI_BIT(op) ? 'T' : 'B';
+    rn_half = ADIS_HW_RNHI_BIT(op) ? 'T' : 'B';
 
     if (accum) {
         printf("%s%s%c%c R%d,R%d,R%d,R%d\n", opstr, cond, rm_half, rn_half,
