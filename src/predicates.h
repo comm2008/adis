@@ -22,67 +22,80 @@
 #include <stdint.h>
 
 // synchronization primitive (SWP, STREX, LDRX)
-static inline int is_sync_primitive(uint32_t op) {
+__attribute__((always_inline)) static inline int is_sync_primitive(uint32_t op)
+{
     return !((op & 0x0F0000F0) ^ 0x01000090);
 }
 
-// multiplication operation
-static inline int is_multi(uint32_t op) {
+// multiply and multiply-accumulate operation
+__attribute__((always_inline)) static inline int is_multi(uint32_t op)
+{
     return !((op & 0x0F0000F0) ^ 0x00000050);
 }
 
-// halfword multiplication operations
-static inline int is_halfword_multi(uint32_t op) {
+// halfword multiply and multiply-accumulate operations
+__attribute__((always_inline)) static inline int is_halfword_multi(uint32_t op)
+{
     return !((op & 0x0F900090) ^ 0x01000080);
 }
 
 // data processing or psr transfer
-static inline int is_dp_psr(uint32_t op) {
+__attribute__((always_inline)) static inline int is_dp_psr(uint32_t op)
+{
     return !((op & 0x0C000000) ^ 0x00000000);
 }
 
 // saturating add / subtract
-static inline int is_saturating(uint32_t op) {
+__attribute__((always_inline)) static inline int is_saturating(uint32_t op)
+{
     return !((op & 0x0F9000F0) ^ 0x01000050);
 }
 
 // single data transfer
-static inline int is_dt_single(uint32_t op) {
+__attribute__((always_inline)) static inline int is_dt_single(uint32_t op)
+{
     return !((op & 0x0C000000) ^ 0x04000000);
 }
 
 // block data transfer
-static inline int is_dt_block(uint32_t op) {
+__attribute__((always_inline)) static inline int is_dt_block(uint32_t op)
+{
     return !((op & 0x0E000000) ^ 0x08000000);
 }
 
 // halfword, signed, and dual data transfers
-static inline int is_dt_extra(uint32_t op) {
+__attribute__((always_inline)) static inline int is_dt_extra(uint32_t op)
+{
     return !((op & 0x0E000090) ^ 0x00000090);
 }
 
 // branch
-static inline int is_branch(uint32_t op) {
+__attribute__((always_inline)) static inline int is_branch(uint32_t op)
+{
     return !((op & 0x0E000000) ^ 0x0A000000);
 }
 
 // coproc data transfer
-static inline int is_dt_coproc(uint32_t op) {
+__attribute__((always_inline)) static inline int is_dt_coproc(uint32_t op)
+{
     return !((op & 0x0E000000) ^ 0x0C000000);
 }
 
 // coproc data operation
-static inline int is_dataop_coproc(uint32_t op) {
+__attribute__((always_inline)) static inline int is_dataop_coproc(uint32_t op)
+{
     return !((op & 0x0F000010) ^ 0x0E000000);
 }
 
 // coproc register transfer
-static inline int is_rt_coproc(uint32_t op) {
+__attribute__((always_inline)) static inline int is_rt_coproc(uint32_t op)
+{
     return !((op & 0x0F000010) ^ 0x0E000010);
 }
 
 // software interrupt
-static inline int is_sw_interrupt(uint32_t op) {
+__attribute__((always_inline)) static inline int is_sw_interrupt(uint32_t op)
+{
     return !((op & 0x0F000000) ^ 0x0F000000);
 }
 
