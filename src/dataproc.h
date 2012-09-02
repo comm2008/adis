@@ -21,6 +21,8 @@
 
 #include <stdint.h>
 
-void dp_psr_instr(uint32_t op);
+void dp_reg_instr(uint32_t op);
+void dp_rsr_instr(uint32_t op);
+void dp_imm_instr(uint32_t op);
 
 #endif  // __ADIS_DATAPROC_H__

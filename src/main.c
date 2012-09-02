@@ -68,8 +68,12 @@ int main(int argc, char* argv[])
             multi_instr(op);
         } else if (is_halfword_multi(op)) {
             halfword_multi_instr(op);
-        } else if (is_dp_psr(op)) {
-            dp_psr_instr(op);
+        } else if (is_dp_reg(op)) {
+            dp_reg_instr(op);
+        } else if (is_dp_rsr(op)) {
+            dp_rsr_instr(op);
+        } else if (is_dp_imm(op)) {
+            dp_imm_instr(op);
         } else if (is_saturating(op)) {
             saturating_instr(op);
         } else if (is_branch(op)) {

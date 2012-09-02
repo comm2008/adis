@@ -39,10 +39,25 @@ __attribute__((always_inline)) static inline int is_halfword_multi(uint32_t op)
     return !((op & 0x0F900090) ^ 0x01000080);
 }
 
-// data processing or psr transfer
-__attribute__((always_inline)) static inline int is_dp_psr(uint32_t op)
+// data-processing (register)
+__attribute__((always_inline)) static inline int is_dp_reg(uint32_t op)
 {
-    return !((op & 0x0C000000) ^ 0x00000000);
+    return (!((op & 0x02000010) ^ 0x00000000)) &&
+           ((op & 0x01900000) ^ 0x01000000);
+}
+
+// data-processing (register-shifted register)
+__attribute__((always_inline)) static inline int is_dp_rsr(uint32_t op)
+{
+    return (!((op & 0x02000090) ^ 0x00000010)) &&
+           ((op & 0x01900000) ^ 0x01000000);
+}
+
+// data-processing (immediate)
+__attribute__((always_inline)) static inline int is_dp_imm(uint32_t op)
+{
+    return (!((op & 0x0200000) ^ 0x02000000)) &&
+           ((op & 0x01900000) ^ 0x01000000);
 }
 
 // saturating add / subtract

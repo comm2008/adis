@@ -24,97 +24,110 @@
 
 #define ADIS_OPCODE(_op)        ((_op & 0x01E00000) >> 21)
 
-#define ADIS_SPSR_BIT(_op)      (_op & 0x00400000)
+#define ADIS_DATAPROC_AND   0x00
+#define ADIS_DATAPROC_EOR   0x01
+#define ADIS_DATAPROC_SUB   0x02
+#define ADIS_DATAPROC_RSB   0x03
+#define ADIS_DATAPROC_ADD   0x04
+#define ADIS_DATAPROC_ADC   0x05
+#define ADIS_DATAPROC_SBC   0x06
+#define ADIS_DATAPROC_RSC   0x07
+#define ADIS_DATAPROC_TST   0x08
+#define ADIS_DATAPROC_TEQ   0x09
+#define ADIS_DATAPROC_CMP   0x0A
+#define ADIS_DATAPROC_CMN   0x0B
+#define ADIS_DATAPROC_ORR   0x0C
+#define ADIS_DATAPROC_MOV   0x0D
+#define ADIS_DATAPROC_BIC   0x0E
+#define ADIS_DATAPROC_MVN   0x0F
+#define ADIS_DATAPROC_LSL   0x10
+#define ADIS_DATAPROC_LSR   0x11
+#define ADIS_DATAPROC_ASR   0x12
+#define ADIS_DATAPROC_ROR   0x13
+#define ADIS_DATAPROC_RRX   0x14
+#define ADIS_DATAPROC_ADR   0x15
 
-#define ADIS_PSRFLAG_NONE       0x0
-#define ADIS_PSRFLAG_BITS       0x1
-
-static inline int is_mrs(uint32_t op)
+static inline int is_single_op(uint32_t opc)
 {
-    return !((op & 0x0FBF0FFF) ^ 0x010F0000);
+    return (opc == ADIS_DATAPROC_MOV) ||
+           (opc == ADIS_DATAPROC_MVN) ||
+           (opc == ADIS_DATAPROC_ADR);
 }
 
-static inline int is_msr(uint32_t op)
+static inline int is_no_result(uint32_t opc)
 {
-    return !((op & 0x0FBFFFF0) ^ 0x012CF000);
+    return (opc >= ADIS_DATAPROC_TST) && (opc <= ADIS_DATAPROC_CMN);
 }
 
-static inline int is_msr_flg(uint32_t op) {
-    return !((op & 0x0DBFF000) ^ 0x0128F000);
-}
-
-static inline int is_single_op(uint32_t op)
+static inline char *get_operation_string(uint32_t opc)
 {
-    int opcode = ADIS_OPCODE(op);
-    return (opcode == 0x1101) || (opcode == 0x1111);
-}
-
-static inline int is_no_result(uint32_t op)
-{
-    int opcode = ADIS_OPCODE(op);
-    return (opcode >= 0x1000) && (opcode <= 0x1011);
-}
-
-static void data_proc_instr(uint32_t op)
-{
-    char offset[16], *cond, setcond;
-    static char *opstr[16] = { "AND", "EOR", "SUB", "RSB",
+    static char *opstr[22] = { "AND", "EOR", "SUB", "RSB",
                                "ADD", "ADC", "SBC", "RSC",
                                "TST", "TEQ", "CMP", "CMN",
-                               "ORR", "MOV", "BIC", "MVN" };
+                               "ORR", "MOV", "BIC", "MVN",
+                               "LSL", "LSR", "ASR", "ROR",
+                               "RRX", "ADR" };
+    return opstr[opc];
+}
 
+static void data_proc_instr(uint32_t op, uint32_t opc)
+{
+    char offset[16], setcond, *cond, *opstr;
     get_offset_string(op, offset, sizeof(offset), 1);
     cond = get_condition_string(op);
+    opstr = get_operation_string(opc);
 
-    if (!is_no_result(op)) {
+    if (!is_no_result(opc)) {
         // check if condition code flag is set
         setcond = ADIS_SETCOND_BIT(op) ? 'S' : 0;
 
-        if (is_single_op(op)) {
-            printf("%s%s%c R%d,%s\n", opstr[ADIS_OPCODE(op)], cond,
-                setcond, ADIS_RD(op), offset);
+        if (is_single_op(opc)) {
+            printf("%s%s%c R%d,%s\n", opstr, cond, setcond, ADIS_RD(op), offset);
         } else {
-            printf("%s%s%c R%d,R%d,%s\n", opstr[ADIS_OPCODE(op)], cond,
-                setcond, ADIS_RD(op), ADIS_RN(op), offset);
+            printf("%s%s%c R%d,R%d,%s\n", opstr, cond, setcond, ADIS_RD(op),
+                ADIS_RN(op), offset);
         }
     } else {
-        printf("%s%s R%d,%s\n", opstr[ADIS_OPCODE(op)], cond, ADIS_RN(op), offset);
+        printf("%s%s R%d,%s\n", opstr, cond, ADIS_RN(op), offset);
     }
 }
 
-static void mrs_instr(uint32_t op)
+void dp_reg_instr(uint32_t op)
 {
-    char *cond, *psr;
+    int op1 = ADIS_OPCODE(op), op2 = op & 0x00000F80, opc;
 
-    cond = get_condition_string(op);
-    psr = ADIS_SPSR_BIT(op) ? "SPSR" : "CPSR";
-
-    printf("MRS%s R%d,%s\n", cond, ADIS_RD(op), psr);
-}
-
-static void msr_instr(uint32_t op, uint32_t flg)
-{
-    char offset[16], *cond, *psr;
-
-    get_offset_string(op, offset, sizeof(offset), 1);
-    cond = get_condition_string(op);
-    psr = ADIS_SPSR_BIT(op) ?
-          (flg == ADIS_PSRFLAG_BITS ? "SPSR_flg" : "SPSR") :
-          (flg == ADIS_PSRFLAG_BITS ? "CPSR_flg" : "CPSR");
-
-    printf("MSR%s %s,%s\n", cond, psr, offset);
-}
-
-void dp_psr_instr(uint32_t op)
-{
-    if (is_msr(op)) {
-        msr_instr(op, ADIS_PSRFLAG_NONE);
-    } else if (is_msr_flg(op)) { 
-        msr_instr(op, ADIS_PSRFLAG_BITS);
-    } else if (is_mrs(op)) {
-        mrs_instr(op);
+    if ((op1 != 0b1101) || (op1 == 0b1101 && !op2)) {
+        opc = op1;
     } else {
-        data_proc_instr(op);
+        int op3 = (op & 0x00000060) >> 4;
+        opc = ADIS_DATAPROC_LSL + (op3 == 0b11 ? op3 + !op2 : op3);
     }
 
+    data_proc_instr(op, opc);
+}
+
+void dp_rsr_instr(uint32_t op)
+{
+    int op1 = ADIS_OPCODE(op), opc;
+
+    if (op1 != 0b1101) {
+        opc = op1;
+    } else {
+        int op2 = (op & 0x00000060) >> 4;
+        opc = ADIS_DATAPROC_LSL + op2;
+    }
+
+    data_proc_instr(op, opc);
+}
+
+void dp_imm_instr(uint32_t op)
+{
+    int opc = ADIS_OPCODE(op);
+
+    if (ADIS_RN(op) == 0b1111 &&
+        (opc == ADIS_DATAPROC_SUB || opc == ADIS_DATAPROC_ADD)) {
+        opc = ADIS_DATAPROC_ADR;
+    }
+
+    data_proc_instr(op, opc);
 }
