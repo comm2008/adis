@@ -60,10 +60,10 @@ __attribute__((always_inline)) static inline int is_dp_imm(uint32_t op)
            ((op & 0x01900000) ^ 0x01000000);
 }
 
-// saturating add / subtract
-__attribute__((always_inline)) static inline int is_saturating(uint32_t op)
+// misc instructions
+__attribute__((always_inline)) static inline int is_misc(uint32_t op)
 {
-    return !((op & 0x0F9000F0) ^ 0x01000050);
+    return !((op & 0x0F900080) ^ 0x010000000);
 }
 
 // single data transfer

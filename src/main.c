@@ -21,7 +21,7 @@
 
 #include "predicates.h"
 #include "dataproc.h"
-#include "satop.h"
+#include "misc.h"
 #include "multi.h"
 #include "sync.h"
 #include "branch.h"
@@ -64,6 +64,8 @@ int main(int argc, char* argv[])
         printf("0x%.8X:\t", count);
         if (is_sync_primitive(op)) {
             sync_instr(op);
+        } else if (is_misc(op)) {
+            misc_instr(op);
         } else if (is_multi(op)) {
             multi_instr(op);
         } else if (is_halfword_multi(op)) {
@@ -74,8 +76,6 @@ int main(int argc, char* argv[])
             dp_rsr_instr(op);
         } else if (is_dp_imm(op)) {
             dp_imm_instr(op);
-        } else if (is_saturating(op)) {
-            saturating_instr(op);
         } else if (is_branch(op)) {
             branch_instr(op);
         } else if (is_dt_single(op)) {

@@ -16,27 +16,11 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include <stdio.h>
+#ifndef __ADIS_MISC_H__
+#define __ADIS_MISC_H__
 
-#include "satop.h"
-#include "common.h"
+#include <stdint.h>
 
-#define ADIS_SUBTRACT_BIT(_op)  (_op & 0x00200000)
-#define ADIS_DOUBLE_BIT(_op)    (_op & 0x00400000)
+void misc_instr(uint32_t op);
 
-static char *get_operation_string(uint32_t op)
-{
-    static char *opstr[4] = {"QADD", "QDADD", "QSUB", "QDSUB"};
-    return opstr[ADIS_DOUBLE_BIT(op) | (ADIS_SUBTRACT_BIT(op) << 1)];
-}
-
-void saturating_instr(uint32_t op)
-{
-    char *cond, *opstr;
-
-    cond = get_condition_string(op);
-    opstr = get_operation_string(op);
-
-    printf("%s%s R%d,R%d,R%d\n", opstr, cond, ADIS_RD(op), ADIS_RM(op),
-        ADIS_RN(op));
-}
+#endif  // __ADIS_MISC_H__
