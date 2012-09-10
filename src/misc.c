@@ -139,7 +139,7 @@ void misc_instr(uint32_t op)
     if (misc_type == ADIS_MISC_CLZ) {
         printf("R%d,R%d\n", ADIS_RD(op), ADIS_RM(op));
     } else if (misc_type == ADIS_MISC_BKPT) {
-        printf("=0x%x\n", ((op & 0x000FFF00) << 4) || (op & 0x0000000F));
+        printf("=0x%x\n", ((op & 0x000FFF00) << 4) | (op & 0x0000000F));
     } else if (misc_type == ADIS_MISC_SMC) {
         printf("=0x%x\n", op & 0x0000000F);
     } else {
