@@ -24,5 +24,6 @@
 void dp_reg_instr(uint32_t op);
 void dp_rsr_instr(uint32_t op);
 void dp_imm_instr(uint32_t op);
+void dp_other_instr(uint32_t op);
 
 #endif  // __ADIS_DATAPROC_H__

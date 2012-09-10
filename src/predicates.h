@@ -60,6 +60,12 @@ __attribute__((always_inline)) static inline int is_dp_imm(uint32_t op)
            ((op & 0x01900000) ^ 0x01000000);
 }
 
+// data-processing (other - MOVW and MOVT)
+__attribute__((always_inline)) static inline int is_dp_other(uint32_t op)
+{
+    return !((op & 0x0FB00000) ^ 0x01000000);
+}
+
 // misc instructions
 __attribute__((always_inline)) static inline int is_misc(uint32_t op)
 {
@@ -78,10 +84,11 @@ __attribute__((always_inline)) static inline int is_dt_block(uint32_t op)
     return !((op & 0x0E000000) ^ 0x08000000);
 }
 
-// halfword, signed, and dual data transfers
+// halfword, signed, and dual data transfers (including unprivileged)
 __attribute__((always_inline)) static inline int is_dt_extra(uint32_t op)
 {
-    return !((op & 0x0E000090) ^ 0x00000090);
+    return !((op & 0x0E0000F0) ^ 0x000000B0) ||
+           !((op & 0x0E0000D0) ^ 0x000000D0);
 }
 
 // branch

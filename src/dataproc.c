@@ -24,6 +24,8 @@
 
 #define ADIS_OPCODE(_op)        ((_op & 0x01E00000) >> 21)
 
+#define ADIS_MOVT_BIT(_op)      ((_op & 0x00400000))
+
 #define ADIS_DATAPROC_AND   0x00
 #define ADIS_DATAPROC_EOR   0x01
 #define ADIS_DATAPROC_SUB   0x02
@@ -130,4 +132,15 @@ void dp_imm_instr(uint32_t op)
     }
 
     data_proc_instr(op, opc);
+}
+
+void dp_other_instr(uint32_t op)
+{
+    char *cond, subinstr;
+
+    cond = get_condition_string(op);
+    subinstr = ADIS_MOVT_BIT(op) ? 'T' : 'W';
+
+    printf("MOV%c R%d,=0x%x\n", subinstr, ADIS_RD(op),
+        ((op & 0x000F0000) >> 4 | (op & 0x00000FFF)));
 }

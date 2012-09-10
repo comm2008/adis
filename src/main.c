@@ -76,6 +76,8 @@ int main(int argc, char* argv[])
             dp_rsr_instr(op);
         } else if (is_dp_imm(op)) {
             dp_imm_instr(op);
+        } else if (is_dp_other(op)) {
+            dp_other_instr(op);
         } else if (is_branch(op)) {
             branch_instr(op);
         } else if (is_dt_single(op)) {
