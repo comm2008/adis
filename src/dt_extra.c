@@ -27,7 +27,7 @@
 #define ADIS_SIGNED_BIT(_op)        (_op & 0x00000040)
 #define ADIS_UNPRIV_BIT(_op)        (_op & 0x00200000)
 
-static inline int is_dt_dual(op)
+static inline int is_dt_dual(uint32_t op)
 {
     return !((op & 0x00100040) ^ 0x00000040);
 }
