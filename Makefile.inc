@@ -1,7 +1,7 @@
 # Common Makefile definitions
 CC = gcc
-CFLAGS = -fomit-frame-pointer -Wall -Werror
+CFLAGS = -Wall -Wextra -Werror
 
-SHELL = /bin/sh
+SHELL = /bin/zsh
 
 EXEC = adis
