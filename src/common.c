@@ -107,7 +107,7 @@ get_addr_string(uint32_t op, uint8_t r_bs, char *offst, char *bfr, size_t bsz)
     // pre-indexed
     if (ADIS_PREINDEX_BIT(op)) {
         snprintf(bfr, ADIS_MIN(bsz, sizeof(r_bs) + sizeof(offst) + 6),
-            "[R%d,%s]%s", r_bs, offst, ADIS_WRITE_BIT(op) ? "!" : "");
+            "[R%d,%s]%c", r_bs, offst, ADIS_WRITE_BIT(op) ? '!' : 0);
     } else {
         snprintf(bfr, ADIS_MIN(bsz, sizeof(r_bs) + sizeof(offst) + 5),
             "[R%d],%s", r_bs, offst);

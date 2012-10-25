@@ -34,17 +34,17 @@ void dt_coproc_instr(uint32_t op) {
 
     // long bit set?
     if (ADIS_LONG_BIT(op)) {
-        long_bit = "L";
+        long_bit = 'L';
     } else {
-        long_bit = "";
+        long_bit = 0;
     }
 
     // load / store
     if (ADIS_LOAD_BIT(op)) {
-        printf("LDC%s%s p%d,c%d,%s\n", cond, long_bit,
+        printf("LDC%s%c p%d,c%d,%s\n", cond, long_bit,
             ADIS_CPNUM(op), ADIS_RD(op), addr);
     } else {
-        printf("STC%s%s p%d,c%d,%s\n", cond, long_bit,
+        printf("STC%s%c p%d,c%d,%s\n", cond, long_bit,
             ADIS_CPNUM(op), ADIS_RD(op), addr);
     }
 }
